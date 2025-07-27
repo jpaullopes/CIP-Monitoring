@@ -7,11 +7,13 @@
 
 **SensorFlow Server** é uma solução backend escalável e resiliente desenvolvida em Python/FastAPI para gerenciamento de dados de sensores em tempo real. Oferece persistência em PostgreSQL, visualização via Grafana, e comunicação bidirecional via WebSockets.
 
+**Compatibilidade:** Este servidor funciona tanto com dispositivos conectados via **WiFi** quanto com **módulos Ethernet** (como W5500 ou W5100) sem necessidade de alterações no código.
+
 ---
 
-## � Índice
+## Índice
 
-- [Funcionalidades](#-funcionalidades)
+- [Funcionalidades](#funcionalidades)
 - [Arquitetura](#-arquitetura)
 - [Tecnologias](#-tecnologias)
 - [Instalação](#-instalação)
@@ -22,7 +24,7 @@
 - [Desenvolvimento](#-desenvolvimento)
 - [Licença](#-licença)
 
-## 🚀 Funcionalidades
+## Funcionalidades
 
 - **API REST Segura**: Endpoints protegidos por API Key para recepção de dados de sensores
 - **WebSocket em Tempo Real**: Distribuição instantânea de dados para clientes conectados
@@ -33,8 +35,9 @@
 - **Logs Estruturados**: Sistema avançado com níveis e formatação colorida
 - **Arquitetura Modular**: Código organizado por responsabilidades
 - **Docker Compose**: Stack completa com orquestração de serviços
+- **Compatibilidade com Ethernet**: Suporte nativo para módulos como W5500 e W5100
 
-## 🏗️ Arquitetura
+## Arquitetura
 
 O projeto segue um padrão de arquitetura modular, com separação clara de responsabilidades:
 
@@ -58,7 +61,7 @@ sensorflow-server/
 └── README.md                 # Documentação do projeto
 ```
 
-## �️ Tecnologias
+## Tecnologias
 
 - **Backend**: Python 3.9+, FastAPI
 - **Banco de Dados**: PostgreSQL 13+
@@ -69,7 +72,7 @@ sensorflow-server/
 - **Contêineres**: Docker, Docker Compose
 - **Logging**: ColorLog
 
-## ⚙️ Instalação
+## Instalação
 
 ### Pré-requisitos
 
@@ -118,7 +121,7 @@ docker-compose up -d
 - **API**: [http://localhost:8000](http://localhost:8000)
 - **Grafana**: [http://localhost:3000](http://localhost:3000) (admin/sua_senha)
 
-## � API Endpoints
+## API Endpoints
 
 ### Recepção de Dados de Sensores
 
@@ -174,9 +177,9 @@ ws.onmessage = function(event) {
 };
 ```
 
-## 📡 API Endpoints
+##  API Endpoints
 
-### 🌡️ Envio de Dados de Sensores
+### Envio de Dados de Sensores
 
 **POST** `/api/temperature_reading`
 
@@ -211,7 +214,7 @@ curl -X POST "http://localhost:8000/api/temperature_reading" \
 }
 ```
 
-### 🔌 WebSocket para Tempo Real
+### WebSocket para Tempo Real
 
 **WebSocket** `/ws/sensor_updates?api-key=sua_chave_websocket_secreta`
 
@@ -229,7 +232,7 @@ ws.onmessage = function(event) {
 };
 ```
 
-## 📊 Integração Grafana
+## Integração Grafana
 
 O SensorFlow Server implementa provisionamento automático do Grafana, permitindo visualização imediata dos dados sem configuração manual.
 
@@ -261,7 +264,7 @@ WHERE
   sensor_id = 'sensor_001'
 ```
 
-## 🔒 Segurança
+## Segurança
 
 O SensorFlow Server implementa múltiplas camadas de segurança:
 
@@ -273,7 +276,7 @@ O SensorFlow Server implementa múltiplas camadas de segurança:
 
 A configuração de segurança é gerenciada através do arquivo `.env`, permitindo customização sem alteração de código.
 
-## 📝 Monitoramento
+## Monitoramento
 
 O sistema fornece recursos avançados de monitoramento:
 
@@ -296,7 +299,7 @@ docker-compose logs -f grafana
 - Conexões WebSocket ativas
 - Estatísticas de uso do banco de dados
 
-## 🔍 Desenvolvimento
+## Desenvolvimento
 
 ### Princípios de Design
 
@@ -325,7 +328,7 @@ O projeto foi projetado para ser extensível. Você pode:
 4. Documente alterações no README, se necessário
 5. Envie um Pull Request com descrição detalhada das mudanças
 
-## 📊 Serviços
+## Serviços
 
 | Serviço    | Porta | Descrição                  | URL Local                   |
 |------------|-------|----------------------------|----------------------------|
@@ -333,7 +336,7 @@ O projeto foi projetado para ser extensível. Você pode:
 | **DB**     | 5432  | Banco de dados PostgreSQL  | postgresql://localhost:5432 |
 | **Grafana**| 3000  | Visualização de dados      | http://localhost:3000      |
 
-## 📄 Licença
+## Licença
 
 Este projeto está licenciado sob os termos da licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
 
