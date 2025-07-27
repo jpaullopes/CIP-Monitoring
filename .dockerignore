@@ -1,0 +1,19 @@
+# Ambiente Virtual do Python
+/venv/
+
+# Ficheiro de variáveis de ambiente
+.env
+
+# Cache do Python
+__pycache__/
+
+# Ficheiros de configuração de IDEs
+.vscode/
+.idea/
+
+# Repositório Git
+.git
+.gitignore
+
+# Este próprio ficheiro
+.dockerignore

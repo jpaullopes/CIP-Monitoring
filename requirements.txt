@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+pydantic
+sqlalchemy
+psycopg2-binary
+pytz
+gunicorn
+jinja2
+python-multipart
+colorlog

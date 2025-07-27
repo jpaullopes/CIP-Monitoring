@@ -1,0 +1,14 @@
+# grafana/provisioning/dashboards/dashboard.yml
+# 📊 Configuração para carregar dashboards automaticamente
+
+apiVersion: 1
+
+providers:
+  - name: 'sensores-iot'
+    orgId: 1
+    folder: ''
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /etc/grafana/provisioning/dashboards

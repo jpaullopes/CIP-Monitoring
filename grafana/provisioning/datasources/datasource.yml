@@ -1,0 +1,20 @@
+# grafana/provisioning/datasources/datasource.yml
+# 📋 "Manual de Instruções" para o Grafana conectar automaticamente no PostgreSQL
+
+apiVersion: 1
+
+datasources:
+  - name: 'PostgreSQL Sensores'
+    type: postgres
+    uid: 'postgresql-sensores'      # UID fixo para referência nos dashboards
+    url: db:5432                    # Endereço do container PostgreSQL
+    user: ${POSTGRES_USER}          # Variável do arquivo .env
+    database: ${POSTGRES_DB}        # Variável do arquivo .env
+    isDefault: true                 # Define como fonte padrão
+    editable: true                  # Permite edição na interface
+    secureJsonData:
+      password: ${POSTGRES_PASSWORD}  # Senha do arquivo .env
+    jsonData:
+      sslmode: disable              # Desabilita SSL (ambiente local)
+      postgresVersion: 1600         # Versão do PostgreSQL
+      timescaledb: false            # Não usa TimescaleDB

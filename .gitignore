@@ -1,0 +1,29 @@
+# Arquivos de Ambiente Virtual
+/venv/
+
+# Arquivos de variáveis de ambiente
+.env
+
+# Cache e arquivos compilados do Python
+# Gerados automaticamente pelo Python.
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Arquivos de IDE e editores
+# Configurações específicas do ambiente de desenvolvimento de cada máquina.
+.vscode/
+.idea/
+*.swp
+
+# Arquivos de sistema operacional
+# Arquivos de metadados gerados pelo Windows.
+.DS_Store
+Thumbs.db
+
+# Arquivos de build e distribuição do Python
+# Gerados ao empacotar a aplicação.
+/build/
+/dist/
+*.egg-info/
