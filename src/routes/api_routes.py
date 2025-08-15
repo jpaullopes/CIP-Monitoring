@@ -1,12 +1,12 @@
 # routes/api_routes.py
 from fastapi import APIRouter, status, Depends, Request
-from sqlalchemy.orm import Session
 from typing import Optional
 from datetime import datetime
 import pytz
+import uuid
 
-from ..models import TemperatureReadingPayload, TemperatureDataResponse, DataDB
-from ..database import get_db
+from ..models import TemperatureReadingPayload, TemperatureDataResponse
+from ..database import write_sensor_data
 from ..auth import verify_api_key
 from ..config import app_state
 from ..websocket_manager import manager
@@ -24,8 +24,7 @@ logger = setup_logger(__name__)
 )
 async def submit_temperature_reading_http(
     payload: TemperatureReadingPayload,
-    request: Request,
-    db: Optional[Session] = Depends(get_db)
+    request: Request
 ):
     """Submit temperature reading via HTTP."""
     client_ip = request.client.host if request.client else "unknown_ip"
@@ -48,38 +47,32 @@ async def submit_temperature_reading_http(
         f"Pressão: {payload.pressure} hPa"
     )
 
-    db_data_entry = None
+    data_saved = False
+    record_id = None
 
-    # Save to database if connected
-    if app_state.db_is_connected and db:
+    # Save to InfluxDB if connected
+    if app_state.influx_is_connected:
         try:
-            db_data_entry = DataDB(
+            data_saved = write_sensor_data(
                 temperature=payload.temperature,
                 humidity=payload.humidity,
                 pressure=payload.pressure,
-                date_recorded=date_to_store,
-                time_recorded=time_to_store,
                 sensor_id=sensor_id,
                 client_ip=client_ip
             )
-            db.add(db_data_entry)
-            db.commit()
-            db.refresh(db_data_entry)
-            logger.info(f"HTTP: Data from {sensor_id} saved to database. ID: {db_data_entry.id}")
+            if data_saved:
+                record_id = str(uuid.uuid4())  # Generate unique ID for response
+                logger.info(f"HTTP: Data from {sensor_id} saved to InfluxDB. ID: {record_id}")
 
         except Exception as e:
-            if db: 
-                db.rollback()
-            app_state.db_is_connected = False
-            logger.error("REAL-TIME ERROR: Database connection lost. Data not saved.")
-            logger.error(f"Error detail: {e}")
-            db_data_entry = None
+            logger.error(f"HTTP: Error saving data to InfluxDB: {e}")
+            data_saved = False
     else:
-        logger.warning(f"WARNING: Database unavailable. Data from {sensor_id} will not be saved.")
+        logger.warning(f"WARNING: InfluxDB unavailable. Data from {sensor_id} will not be saved.")
 
     # Create response data
     data_to_broadcast = TemperatureDataResponse(
-        id=db_data_entry.id if db_data_entry else None,
+        id=record_id,
         temperature=payload.temperature,
         humidity=payload.humidity,
         pressure=payload.pressure,
