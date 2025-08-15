@@ -1,10 +1,9 @@
 # routes/websocket_routes.py
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status, Depends, Query
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status, Query
 from typing import Optional
 
-from ..models import TemperatureDataResponse, DataDB
-from ..database import get_db
+from ..models import TemperatureDataResponse
+from ..database import get_influx_client
 from ..auth import verify_websocket_api_key
 from ..config import app_state, MAX_WS_CONNECTIONS_PER_KEY
 from ..websocket_manager import manager
@@ -17,8 +16,7 @@ logger = setup_logger(__name__)
 @router.websocket("/ws/sensor_updates")
 async def websocket_sensor_updates_endpoint(
     websocket: WebSocket,
-    api_key: str = Query(..., alias="api-key"),
-    db: Optional[Session] = Depends(get_db)
+    api_key: str = Query(..., alias="api-key")
 ):
     """WebSocket endpoint for real-time sensor updates."""
     
@@ -46,17 +44,10 @@ async def websocket_sensor_updates_endpoint(
     if not connection_accepted:
         return
 
-    # Send last data entry if database is available
-    if app_state.db_is_connected and db:
-        try:
-            last_data_entry = db.query(DataDB).order_by(DataDB.id.desc()).first()
-            if last_data_entry:
-                await websocket.send_json(
-                    TemperatureDataResponse.from_orm(last_data_entry).model_dump(mode='json')
-                )
-        except Exception as e:
-            app_state.db_is_connected = False
-            logger.warning(f"WS: Error fetching last data, database now marked as offline: {e}")
+    # Note: InfluxDB doesn't have a simple "get last record" like SQL
+    # If you need this functionality, you would need to implement a query
+    # For now, we'll skip sending last data and just wait for new data
+    logger.info(f"WebSocket connected. Waiting for real-time sensor data...")
 
     # Keep connection alive
     try:
