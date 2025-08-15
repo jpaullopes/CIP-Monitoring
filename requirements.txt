@@ -1,8 +1,8 @@
 fastapi
 uvicorn[standard]
 pydantic
-sqlalchemy
-psycopg2-binary
+influxdb3-python
+python-dotenv
 pytz
 gunicorn
 jinja2

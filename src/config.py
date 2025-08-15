@@ -8,7 +8,11 @@ load_dotenv()
 # --- Environment Variables ---
 EXPECTED_API_KEY = os.getenv("API_KEY")
 EXPECTED_API_KEY_WS = os.getenv("API_KEY_WS")
-DATABASE_URL = os.getenv("DATABASE_URL")
+
+# InfluxDB Configuration
+INFLUX_HOST = os.getenv("INFLUX_HOST", "http://localhost:8181")
+INFLUX_TOKEN = os.getenv("INFLUX_TOKEN")
+INFLUX_DATABASE = os.getenv("INFLUX_DATABASE", "sensores")
 
 # WebSocket connection limits
 MAX_WS_CONNECTIONS_PER_KEY_STR = os.getenv("MAX_WS_CONNECTIONS_PER_KEY")
@@ -24,8 +28,8 @@ except ValueError:
 
 # --- Global Application State ---
 class AppState:
-    """A simple class to hold the database connection state."""
+    """A simple class to hold the InfluxDB connection state."""
     def __init__(self):
-        self.db_is_connected: bool = False
+        self.influx_is_connected: bool = False
 
 app_state = AppState()
