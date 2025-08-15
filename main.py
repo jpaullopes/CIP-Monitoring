@@ -10,7 +10,7 @@ from src.logger_config import setup_logger
 logger = setup_logger(__name__)
 
 # Create FastAPI app
-app = FastAPI(title="Resilient Sensor API")
+app = FastAPI(title="Resilient Sensor API - InfluxDB Edition")
 
 # --- Robust Startup Logic ---
 @app.on_event("startup")
@@ -31,7 +31,7 @@ async def on_startup():
     else:
         logger.info(f"WebSocket connections limited to {MAX_WS_CONNECTIONS_PER_KEY} per API Key.")
 
-    # Initialize database
+    # Initialize InfluxDB connection
     initialize_database()
 
 # Include routers
