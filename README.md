@@ -1,11 +1,19 @@
-# SensorFlow Server
+# SensorFlow Server - InfluxDB Edition 🚀
 
-[![Python](https://img.shields.io/badge/Python-3.9+-green.svg)](https://python.org)
+[![Python](https://img.shields.io/badge/Python-3.11+-green.svg)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.95+-blue)](https://fastapi.tiangolo.com/)
-[![Version](https://img.shields.io/badge/version-2.0.0-brightgreen)](https://github.com/jpaullopes/sensorflow-server)
+[![InfluxDB](https://img.shields.io/badge/InfluxDB-v3.0+-orange)](https://influxdata.com/)
+[![Version](https://img.shields.io/badge/version-2.1.0-brightgreen)](https://github.com/jpaullopes/sensorflow-server-ethernet)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-**SensorFlow Server** é uma solução backend escalável e resiliente desenvolvida em Python/FastAPI para gerenciamento de dados de sensores em tempo real. Oferece persistência em PostgreSQL, visualização via Grafana, e comunicação bidirecional via WebSockets.
+**SensorFlow Server - InfluxDB Edition** é uma solução backend moderna e escalável desenvolvida em Python/FastAPI para gerenciamento de dados de sensores em tempo real. Oferece persistência em **InfluxDB v3 com consultas SQL nativas**, visualização via Grafana, e comunicação bidirecional via WebSockets.
+
+**Principais Diferenciais:**
+- 🏗️ **Arquitetura Clean**: Organização modular seguindo princípios de Clean Architecture
+- 🗄️ **InfluxDB v3**: Banco de dados de séries temporais com suporte SQL nativo
+- 📊 **Consultas SQL**: Queries diretas no InfluxDB v3 via API REST
+- 🔄 **Real-time**: WebSockets para streaming de dados em tempo real
+- 🛡️ **Segurança**: Autenticação por API Key com controle granular
 
 **Compatibilidade:** Este servidor funciona tanto com dispositivos conectados via **WiFi** quanto com **módulos Ethernet** (como W5500 ou W5100) sem necessidade de alterações no código.
 
