@@ -39,6 +39,12 @@ services:
     depends_on:
       influxdb3-core:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   # 3. SERVIÇO DO GRAFANA
   grafana:
