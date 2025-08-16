@@ -22,28 +22,43 @@
 ## Índice
 
 - [Funcionalidades](#funcionalidades)
-- [Arquitetura](#-arquitetura)
+- [Arquitetura](#-arquitetura)  
 - [Tecnologias](#-tecnologias)
 - [Instalação](#-instalação)
 - [API Endpoints](#-api-endpoints)
+- [Consultas SQL](#-consultas-sql-influxdb-v3)
 - [Integração Grafana](#-integração-grafana)
 - [Segurança](#-segurança)
 - [Monitoramento](#-monitoramento)
 - [Desenvolvimento](#-desenvolvimento)
 - [Licença](#-licença)
 
-## Funcionalidades
+## 🌟 Funcionalidades
 
+### ✨ Core Features
 - **API REST Segura**: Endpoints protegidos por API Key para recepção de dados de sensores
 - **WebSocket em Tempo Real**: Distribuição instantânea de dados para clientes conectados
-- **Banco de Dados PostgreSQL**: Armazenamento persistente com schemas auto-gerenciados
+- **InfluxDB v3**: Armazenamento de séries temporais com **consultas SQL nativas**
+- **Health Monitoring**: Endpoints de saúde para monitoramento da aplicação
 - **Visualização com Grafana**: Dashboards personalizáveis para análise de dados
+
+### 🏗️ Arquitetura Moderna
+- **Clean Architecture**: Separação clara entre domínio, aplicação e infraestrutura
+- **Injeção de Dependências**: Desacoplamento entre componentes
+- **Configuração Externa**: Variáveis de ambiente para todas as configurações
+- **Logs Estruturados**: Sistema avançado com níveis e formatação colorida
+
+### 🔒 Segurança & Performance  
 - **Autenticação Dupla**: API Keys independentes para HTTP e WebSocket
 - **Limitação de Conexões**: Controle granular de conexões por API Key
-- **Logs Estruturados**: Sistema avançado com níveis e formatação colorida
-- **Arquitetura Modular**: Código organizado por responsabilidades
+- **Validação de Dados**: Schemas Pydantic para validação automática
+- **SQL Injection Protection**: Consultas seguras via cliente oficial InfluxDB
+
+### 🚀 DevOps & Deployment
 - **Docker Compose**: Stack completa com orquestração de serviços
-- **Compatibilidade com Ethernet**: Suporte nativo para módulos como W5500 e W5100
+- **Healthchecks**: Verificação automática de saúde dos containers
+- **Compatibilidade Ethernet**: Suporte nativo para módulos W5500 e W5100
+- **CLI Tools**: Comandos diretos para interação com InfluxDB v3
 
 ## Arquitetura
 
