@@ -23,7 +23,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "postgresql-sensores"
+        "uid": "postgresql-database"
       },
       "fieldConfig": {
         "defaults": {
@@ -76,7 +76,7 @@
         {
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "postgresql-sensores"
+            "uid": "postgresql-database"
           },
           "editorMode": "code",
           "format": "table",
@@ -108,7 +108,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "postgresql-sensores"
+        "uid": "postgresql-database"
       },
       "fieldConfig": {
         "defaults": {
@@ -162,7 +162,7 @@
         {
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "postgresql-sensores"
+            "uid": "postgresql-database"
           },
           "editorMode": "code",
           "format": "table",
@@ -194,7 +194,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "postgresql-sensores"
+        "uid": "postgresql-database"
       },
       "fieldConfig": {
         "defaults": {
@@ -272,7 +272,7 @@
         {
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "postgresql-sensores"
+            "uid": "postgresql-database"
           },
           "editorMode": "code",
           "format": "table",
@@ -304,7 +304,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "postgresql-sensores"
+        "uid": "postgresql-database"
       },
       "fieldConfig": {
         "defaults": {
@@ -356,12 +356,12 @@
         {
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "postgresql-sensores"
+            "uid": "postgresql-database"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\r\n  COUNT(DISTINCT sensor_id) AS \"Sensores Ativos\"\r\nFROM data\r\nWHERE\r\n  CAST(date_recorded AS TIMESTAMP) + time_recorded BETWEEN $__timeFrom() AND $__timeTo();",
+          "rawSql": "SELECT\r\n  COUNT(DISTINCT sensor_id) AS \"database Ativos\"\r\nFROM data\r\nWHERE\r\n  CAST(date_recorded AS TIMESTAMP) + time_recorded BETWEEN $__timeFrom() AND $__timeTo();",
           "refId": "A",
           "sql": {
             "columns": [
@@ -382,13 +382,13 @@
           }
         }
       ],
-      "title": "Quantidade de Sensores",
+      "title": "Quantidade de database",
       "type": "stat"
     },
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "postgresql-sensores"
+        "uid": "postgresql-database"
       },
       "fieldConfig": {
         "defaults": {
@@ -481,7 +481,7 @@
         {
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "postgresql-sensores"
+            "uid": "postgresql-database"
           },
           "editorMode": "code",
           "format": "table",
@@ -513,7 +513,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "postgresql-sensores"
+        "uid": "postgresql-database"
       },
       "fieldConfig": {
         "defaults": {
@@ -568,7 +568,7 @@
         {
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "postgresql-sensores"
+            "uid": "postgresql-database"
           },
           "editorMode": "code",
           "format": "table",
@@ -601,7 +601,7 @@
   "refresh": "5s",
   "schemaVersion": 39,
   "tags": [
-    "sensores",
+    "database",
     "iot"
   ],
   "templating": {
@@ -614,8 +614,8 @@
   "timeRangeUpdatedDuringEditOrView": false,
   "timepicker": {},
   "timezone": "",
-  "title": "Dashboard Sensores IoT",
-  "uid": "sensores-iot",
+  "title": "Dashboard database IoT",
+  "uid": "database-iot",
   "version": 1,
   "weekStart": ""
 }

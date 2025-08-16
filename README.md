@@ -6,7 +6,7 @@
 [![Version](https://img.shields.io/badge/version-2.1.0-brightgreen)](https://github.com/jpaullopes/sensorflow-server-ethernet)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-**SensorFlow Server - InfluxDB Edition** é uma solução backend moderna e escalável desenvolvida em Python/FastAPI para gerenciamento de dados de sensores em tempo real. Oferece persistência em **InfluxDB v3 com consultas SQL nativas**, visualização via Grafana, e comunicação bidirecional via WebSockets.
+**SensorFlow Server - InfluxDB Edition** é uma solução backend moderna e escalável desenvolvida em Python/FastAPI para gerenciamento de dados de database em tempo real. Oferece persistência em **InfluxDB v3 com consultas SQL nativas**, visualização via Grafana, e comunicação bidirecional via WebSockets.
 
 **Principais Diferenciais:**
 - 🏗️ **Arquitetura Clean**: Organização modular seguindo princípios de Clean Architecture
@@ -36,7 +36,7 @@
 ## 🌟 Funcionalidades
 
 ### ✨ Core Features
-- **API REST Segura**: Endpoints protegidos por API Key para recepção de dados de sensores
+- **API REST Segura**: Endpoints protegidos por API Key para recepção de dados de database
 - **WebSocket em Tempo Real**: Distribuição instantânea de dados para clientes conectados
 - **InfluxDB v3**: Armazenamento de séries temporais com **consultas SQL nativas**
 - **Health Monitoring**: Endpoints de saúde para monitoramento da aplicação
@@ -73,7 +73,7 @@ sensorflow-server-ethernet/
 ├── src/                          # 📦 Código fonte modular
 │   ├── api/v1/                   # 🛣️ Camada de Interface (Routers)
 │   │   ├── routers/
-│   │   │   ├── temperature.py    # Endpoints de sensores
+│   │   │   ├── temperature.py    # Endpoints de database
 │   │   │   ├── websocket.py      # WebSocket real-time
 │   │   │   ├── health.py         # Health monitoring
 │   │   │   └── query.py          # Consultas SQL InfluxDB
@@ -166,7 +166,7 @@ API_KEY_WS=sua_chave_websocket_secreta_aqui
 # 🗄️ InfluxDB v3 Configuration
 INFLUX_HOST=http://influxdb3-core:8181
 INFLUX_TOKEN=apiv3_Q7UBMofejrm2UKcSBxcgZWsrq0F9yBplA1rOJcPJRYY8xaGV0H4yYLCQ3djH9f4tqPpVQUQGT6UmH2TuHJAV9Q==
-INFLUX_DATABASE=sensores
+INFLUX_DATABASE=database
 
 # 🔗 Conexões & Limites  
 MAX_WS_CONNECTIONS_PER_KEY=10
@@ -217,11 +217,11 @@ docker-compose down -v
 
 ## 🛣️ API Endpoints
 
-### 📡 Recepção de Dados de Sensores
+### 📡 Recepção de Dados de database
 
 **POST** `/api/v1/temperature_reading`
 
-Endpoint principal para envio de dados de sensores, protegido por API Key.
+Endpoint principal para envio de dados de database, protegido por API Key.
 
 **Headers necessários:**
 - `X-API-Key`: Chave de autenticação para API
@@ -384,19 +384,19 @@ Execute consultas SQL diretamente no container InfluxDB:
 # Listar 10 registros mais recentes
 docker-compose exec influxdb3-core influxdb3 query \
   --token "$INFLUX_TOKEN" \
-  --database "sensores" \
+  --database "database" \
   "SELECT * FROM sensor_readings ORDER BY time DESC LIMIT 10"
 
 # Contar total de registros
 docker-compose exec influxdb3-core influxdb3 query \
   --token "$INFLUX_TOKEN" \
-  --database "sensores" \
+  --database "database" \
   "SELECT COUNT(*) FROM sensor_readings"
 
 # Dados de um sensor específico nas últimas 24h
 docker-compose exec influxdb3-core influxdb3 query \
   --token "$INFLUX_TOKEN" \
-  --database "sensores" \
+  --database "database" \
   "SELECT * FROM sensor_readings 
    WHERE sensor_id = 'sensor_001' 
    AND time > now() - interval '24 hours'"
@@ -404,7 +404,7 @@ docker-compose exec influxdb3-core influxdb3 query \
 # Média de temperatura por sensor
 docker-compose exec influxdb3-core influxdb3 query \
   --token "$INFLUX_TOKEN" \
-  --database "sensores" \
+  --database "database" \
   "SELECT sensor_id, AVG(temperature) as avg_temp 
    FROM sensor_readings 
    GROUP BY sensor_id"
@@ -436,7 +436,7 @@ FROM sensor_readings
 WHERE time > now() - interval '2 hours'
 ORDER BY time DESC;
 
--- 🌡️ Sensores com temperatura crítica
+-- 🌡️ database com temperatura crítica
 SELECT DISTINCT sensor_id, MAX(temperature) as max_temp
 FROM sensor_readings 
 WHERE temperature > 30
@@ -466,14 +466,14 @@ O sistema configura automaticamente:
 - ✅ **Fonte de dados InfluxDB v3** pré-configurada
 - ✅ **Conexão segura** com token e database via variáveis de ambiente
 - ✅ **SQL Query Support** para consultas diretas nas tabelas
-- ✅ **Dashboards pré-configurados** para monitoramento de sensores
+- ✅ **Dashboards pré-configurados** para monitoramento de database
 
 ### 🎨 Criação de Dashboards
 
 1. **Acesse o Grafana**: [http://localhost:3000](http://localhost:3000)
 2. **Login**: admin / admin123 (conforme configurado no .env)
 3. **Novo Dashboard**: "+" → "Dashboard" → "Add new panel"
-4. **Fonte de dados**: "InfluxDB v3 Sensores" (pré-configurada)
+4. **Fonte de dados**: "InfluxDB v3 database" (pré-configurada)
 
 ### 🔍 Queries SQL para Dashboards
 
@@ -489,7 +489,7 @@ WHERE $__timeFilter(time)
 ORDER BY time DESC
 ```
 
-**Múltiplos Sensores (Series):**
+**Múltiplos database (Series):**
 ```sql
 SELECT 
   time as "time",
@@ -515,7 +515,7 @@ GROUP BY time_bucket('5 minutes', time), sensor_id
 ORDER BY time
 ```
 
-**Status de Conexão dos Sensores:**
+**Status de Conexão dos database:**
 ```sql
 SELECT 
   sensor_id,
@@ -533,7 +533,7 @@ GROUP BY sensor_id
 | **Temperatura** | Time Series | `SELECT time, temperature, sensor_id FROM sensor_readings` |
 | **Umidade** | Gauge | `SELECT AVG(humidity) FROM sensor_readings WHERE time > now() - interval '1 hour'` |
 | **Pressão** | Stat | `SELECT pressure FROM sensor_readings ORDER BY time DESC LIMIT 1` |
-| **Status Sensores** | Table | `SELECT sensor_id, MAX(time) as last_update FROM sensor_readings GROUP BY sensor_id` |
+| **Status database** | Table | `SELECT sensor_id, MAX(time) as last_update FROM sensor_readings GROUP BY sensor_id` |
 
 ### 🚨 Alertas e Notificações
 
@@ -653,7 +653,7 @@ WHERE time > now() - interval '24 hours'
 GROUP BY hour
 ORDER BY hour;
 
--- Sensores inativos (sem dados há mais de 1 hora)
+-- database inativos (sem dados há mais de 1 hora)
 SELECT DISTINCT sensor_id, MAX(time) as last_reading
 FROM sensor_readings 
 GROUP BY sensor_id
@@ -821,7 +821,7 @@ from typing import Optional
 from src.infrastructure.influx.client import InfluxClient
 
 class SensorService:
-    """Service para processamento de dados de sensores."""
+    """Service para processamento de dados de database."""
     
     def __init__(self, influx_client: InfluxClient):
         """
@@ -901,7 +901,7 @@ curl http://localhost:8000/api/v1/ping
 # Verificar InfluxDB
 docker-compose exec influxdb3-core influxdb3 query \
   --token "$INFLUX_TOKEN" \
-  --database "sensores" \
+  --database "database" \
   "SELECT COUNT(*) FROM sensor_readings"
 ```
 
@@ -916,6 +916,6 @@ Este projeto está licenciado sob os termos da **licença MIT** - veja o arquivo
 ### 🚀 **SensorFlow Server - InfluxDB Edition**
 **Desenvolvido com ❤️ em Python | FastAPI | InfluxDB v3**
 
-*Uma solução moderna e escalável para IoT e monitoramento de sensores em tempo real.*
+*Uma solução moderna e escalável para IoT e monitoramento de database em tempo real.*
 
 

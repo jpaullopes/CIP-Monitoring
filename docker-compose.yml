@@ -34,7 +34,7 @@ services:
       - INFLUX_HOST=influxdb3-core
       - INFLUX_PORT=8181
       - INFLUX_TOKEN=apiv3_Q7UBMofejrZ7HoxRPodiP5canCprE5XTEAusUQj-Fjd07_L7R3GCPP4S_H8p1ikjADNyRfI8MREHh4hUqqkSog
-      - INFLUX_DATABASE=sensores
+      - INFLUX_DATABASE=database
     depends_on:
       - influxdb3-core
     healthcheck:

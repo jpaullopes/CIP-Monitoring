@@ -4,16 +4,16 @@
 apiVersion: 1
 
 datasources:
-  - name: 'InfluxDB Sensores'
+  - name: 'InfluxDB database'
     type: influxdb
-    uid: 'influxdb-sensores'        # UID fixo para referência nos dashboards
+    uid: 'influxdb-database'        # UID fixo para referência nos dashboards
     url: http://influxdb3-core:8181 # Endereço do container InfluxDB
     isDefault: true                 # Define como fonte padrão
     editable: true                  # Permite edição na interface
     jsonData:
       version: 'Flux'               # Usa linguagem Flux do InfluxDB v2/v3
       organization: ''              # Deixe vazio para InfluxDB v3
-      defaultBucket: 'sensores'     # Bucket/Database padrão
+      defaultBucket: 'database'     # Bucket/Database padrão
       httpMode: GET                 # Método HTTP
     secureJsonData:
       token: '${INFLUX_TOKEN}'      # Token de autenticação (se necessário)

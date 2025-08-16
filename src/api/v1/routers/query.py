@@ -81,7 +81,7 @@ async def execute_sql_query(request: SQLQueryRequest):
 )
 async def get_recent_sensor_data(limit: int = 50):
     """
-    Busca os dados de sensores mais recentes (últimas 24 horas).
+    Busca os dados de database mais recentes (últimas 24 horas).
     """
     sql_query = f"""
     SELECT 

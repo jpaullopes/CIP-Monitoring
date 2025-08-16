@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     INFLUX_HOST: str = "localhost"
     INFLUX_PORT: int = 8181
     INFLUX_TOKEN: str | None = None
-    INFLUX_DATABASE: str = "sensores"
+    INFLUX_DATABASE: str = "database"
     MAX_WS_CONNECTIONS_PER_KEY: int = 0
 
     class Config:
