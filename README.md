@@ -60,29 +60,54 @@
 - **Compatibilidade Ethernet**: Suporte nativo para módulos W5500 e W5100
 - **CLI Tools**: Comandos diretos para interação com InfluxDB v3
 
-## Arquitetura
+## 🏗️ Arquitetura
 
-O projeto segue um padrão de arquitetura modular, com separação clara de responsabilidades:
+O projeto segue **Clean Architecture** com separação clara de responsabilidades em camadas:
 
 ```plaintext
-sensorflow-server/
-├── main.py                   # Ponto de entrada da aplicação
-├── src/                      # Código fonte modular
-│   ├── config.py            # Configurações e variáveis de ambiente
-│   ├── logger_config.py     # Sistema de logs coloridos
-│   ├── models.py            # Modelos SQLAlchemy e Pydantic
-│   ├── database.py          # Configuração e conexão do banco
-│   ├── auth.py              # Autenticação e verificação de API Keys
-│   ├── websocket_manager.py # Gerenciamento de conexões WebSocket
-│   └── routes/              # Endpoints organizados por domínio
-├── docker-compose.yml        # Orquestração dos serviços
-├── Dockerfile                # Definição da imagem de contêiner
-├── requirements.txt          # Dependências Python
-├── grafana/                  # Configuração do Grafana
-│   └── provisioning/         # Provisionamento automático
-│       └── datasources/      # Fontes de dados pré-configuradas
-└── README.md                 # Documentação do projeto
+sensorflow-server-ethernet/
+├── app/                           # 🚀 Camada de Aplicação
+│   ├── main.py                   # Entry point FastAPI
+│   ├── lifecycle.py              # Hooks de startup/shutdown
+│   └── dependencies.py           # Injeção de dependências
+├── src/                          # 📦 Código fonte modular
+│   ├── api/v1/                   # 🛣️ Camada de Interface (Routers)
+│   │   ├── routers/
+│   │   │   ├── temperature.py    # Endpoints de sensores
+│   │   │   ├── websocket.py      # WebSocket real-time
+│   │   │   ├── health.py         # Health monitoring
+│   │   │   └── query.py          # Consultas SQL InfluxDB
+│   │   └── schemas/
+│   │       └── temperature.py    # Modelos Pydantic
+│   ├── core/                     # 💎 Camada de Domínio
+│   │   ├── models/               # Entidades de negócio
+│   │   └── services/             # Lógica de domínio
+│   └── infrastructure/           # 🔧 Camada de Infraestrutura
+│       ├── config/
+│       │   └── settings.py       # Configurações da aplicação
+│       ├── influx/
+│       │   └── client.py         # Cliente InfluxDB v3
+│       ├── logging/
+│       │   └── config.py         # Sistema de logs
+│       ├── security/
+│       │   └── api_key.py        # Autenticação API Key
+│       └── websocket/
+│           └── manager.py        # Gerenciamento WebSocket
+├── docker-compose.yml            # 🐳 Orquestração dos serviços
+├── Dockerfile                    # 📦 Definição da imagem
+├── requirements.txt              # 📋 Dependências Python
+└── grafana/                      # 📊 Configuração Grafana
+    └── provisioning/
+        ├── datasources/          # InfluxDB datasource
+        └── dashboards/           # Dashboards pré-configurados
 ```
+
+### 🎯 Princípios Arquiteturais
+
+- **Separation of Concerns**: Cada camada tem responsabilidades bem definidas
+- **Dependency Inversion**: Abstrações não dependem de implementações
+- **Single Responsibility**: Cada módulo tem uma única razão para mudar
+- **Interface Segregation**: Interfaces específicas para cada cliente
 
 ## Tecnologias
 
