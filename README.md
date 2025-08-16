@@ -872,16 +872,50 @@ print('InfluxDB conectado:', client is not None)
 curl -H "X-API-Key: sua_chave" http://localhost:8000/api/v1/health
 ```
 
-## Serviços
+## 🌐 Serviços
 
-| Serviço    | Porta | Descrição                  | URL Local                   |
-|------------|-------|----------------------------|----------------------------|
-| **API**    | 8000  | Backend FastAPI            | http://localhost:8000      |
-| **DB**     | 5432  | Banco de dados PostgreSQL  | postgresql://localhost:5432 |
-| **Grafana**| 3000  | Visualização de dados      | http://localhost:3000      |
+| Serviço       | Porta | Descrição                        | URL Local                        | Status |
+|---------------|-------|----------------------------------|----------------------------------|---------|
+| **🚀 API**    | 8000  | Backend FastAPI com Clean Arch   | http://localhost:8000           | ✅ Ativo |
+| **📊 Docs**   | 8000  | Documentação Swagger/ReDoc       | http://localhost:8000/docs      | ✅ Ativo |
+| **🗄️ InfluxDB** | 8181 | Banco de séries temporais v3    | http://localhost:8181           | ✅ Ativo |
+| **📈 Grafana** | 3000 | Dashboards e visualização       | http://localhost:3000           | ✅ Ativo |
+| **🌐 WebSocket** | 8000 | Real-time data streaming       | ws://localhost:8000/ws/sensor_updates | ✅ Ativo |
 
-## Licença
+### 🔗 URLs Importantes
 
-Este projeto está licenciado sob os termos da licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
+- **📖 API Docs**: [http://localhost:8000/docs](http://localhost:8000/docs) - Interface Swagger
+- **🔍 ReDoc**: [http://localhost:8000/redoc](http://localhost:8000/redoc) - Documentação alternativa  
+- **🏥 Health**: [http://localhost:8000/api/v1/health](http://localhost:8000/api/v1/health) - Status da aplicação
+- **📊 Grafana**: [http://localhost:3000](http://localhost:3000) - admin/admin123
+
+### ⚡ Status da Stack
+
+```bash
+# Verificar status de todos os serviços
+docker-compose ps
+
+# Saúde da aplicação
+curl http://localhost:8000/api/v1/ping
+
+# Verificar InfluxDB
+docker-compose exec influxdb3-core influxdb3 query \
+  --token "$INFLUX_TOKEN" \
+  --database "sensores" \
+  "SELECT COUNT(*) FROM sensor_readings"
+```
+
+---
+
+## 📄 Licença
+
+Este projeto está licenciado sob os termos da **licença MIT** - veja o arquivo [LICENSE](LICENSE) para detalhes.
+
+---
+
+### 🚀 **SensorFlow Server - InfluxDB Edition**
+**Desenvolvido com ❤️ em Python | FastAPI | InfluxDB v3**
+
+*Uma solução moderna e escalável para IoT e monitoramento de sensores em tempo real.*
 
 

@@ -71,4 +71,3 @@ volumes:
     driver: local
   grafana_data:
     driver: local
-    driver: local
