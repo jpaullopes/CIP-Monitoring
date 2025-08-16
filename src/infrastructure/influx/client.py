@@ -1,4 +1,4 @@
-from influxdb3_python import InfluxDBClient3, Point
+from influxdb_client_3 import InfluxDBClient3, Point
 from datetime import datetime, timezone
 from src.infrastructure.config.settings import settings, app_state
 from src.infrastructure.logging.config import get_logger
