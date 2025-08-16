@@ -297,7 +297,6 @@ O sistema configura automaticamente:
 3. **Novo Dashboard**: "+" → "Dashboard" → "Add new panel"
 4. **Fonte de dados**: "InfluxDB v3 database" (pré-configurada)
 
-```
 ## 🛡️ Segurança
 
 O SensorFlow Server implementa múltiplas camadas de segurança:
@@ -317,20 +316,6 @@ O SensorFlow Server implementa múltiplas camadas de segurança:
 - **CORS**: Configuração de Cross-Origin Resource Sharing
 - **Rate Limiting**: Prevenção de abuso de endpoints
 - **Logs de Auditoria**: Rastreamento detalhado de todas as operações
-
-### 📋 Configuração de Segurança
-
-```dotenv
-# Chaves de 32+ caracteres recomendadas
-API_KEY=sua_chave_http_muito_secreta_e_longa_aqui
-API_KEY_WS=sua_chave_websocket_muito_secreta_e_longa_aqui
-
-# Controle de conexões
-MAX_WS_CONNECTIONS_PER_KEY=10
-
-# InfluxDB Token seguro (gerado automaticamente)
-INFLUX_TOKEN=apiv3_Q7UBMofejrm2UKcSBxcgZWsrq0F9yBplA1rOJcPJRYY...
-```
 
 ## 📈 Monitoramento
 
@@ -354,14 +339,6 @@ docker-compose logs api | grep ERROR
 docker-compose logs api | grep INFO
 ```
 
-### 📈 Métricas Disponíveis
-
-- **Latência de Requests**: Tempo de processamento de cada endpoint
-- **Taxa de Ingestão**: Dados recebidos por minuto/hora
-- **Conexões WebSocket**: Número de conexões ativas
-- **Health Status**: Estado de saúde do InfluxDB e demais serviços
-- **Uso de Recursos**: Memory usage, CPU, Network I/O
-
 ### 🚨 Alertas e Monitoramento
 
 **Via Logs:**
@@ -374,24 +351,6 @@ docker-compose logs api | grep "WebSocket"
 
 # Monitorar ingestão de dados
 docker-compose logs api | grep "temperature_reading"
-```
-
-**Via InfluxDB (Queries de Monitoramento):**
-```sql
--- Taxa de ingestão por hora
-SELECT 
-  date_trunc('hour', time) as hour,
-  COUNT(*) as readings_per_hour
-FROM sensor_readings 
-WHERE time > now() - interval '24 hours'
-GROUP BY hour
-ORDER BY hour;
-
--- database inativos (sem dados há mais de 1 hora)
-SELECT DISTINCT sensor_id, MAX(time) as last_reading
-FROM sensor_readings 
-GROUP BY sensor_id
-HAVING MAX(time) < now() - interval '1 hour';
 ```
 
 ## 🧑‍💻 Desenvolvimento
