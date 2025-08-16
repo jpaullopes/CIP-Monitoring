@@ -1,24 +1,23 @@
 version: '3.8'
 
 services:
-  # 1. SERVIÇO DO INFLUXDB v3
-  influxdb3-core:
-    image: influxdb:3-core
-    container_name: influxdb3-core
+  # 1. SERVIÇO DO INFLUXDB v2
+  influxdb:
+    image: influxdb:2.7-alpine
+    container_name: influxdb
     restart: always
     ports:
-      - "8181:8181"    
+      - "8086:8086"    
     volumes:
-      - influxdb3_data:/var/lib/influxdb3
+      - influxdb_data:/var/lib/influxdb2
+      - influxdb_config:/etc/influxdb2
     environment:
-      - INFLUXDB3_DATA_DIR=/home/influxdb3/.influxdb3
-      - INFLUXDB_IOX_DB_DIR=/var/lib/influxdb3
-      - LOG_FILTER=info
-    command: >
-      influxdb3 serve 
-      --object-store file
-      --data-dir /var/lib/influxdb3
-      --node-id node1
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=password123
+      - DOCKER_INFLUXDB_INIT_ORG=default
+      - DOCKER_INFLUXDB_INIT_BUCKET=sensores
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=admin-token-123456789
 
   # 2. SEU SERVIÇO DE API
   api:
@@ -31,9 +30,13 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - INFLUX_HOST=http://influxdb3-core:8181
+      - INFLUX_HOST=influxdb
+      - INFLUX_PORT=8086
+      - INFLUX_TOKEN=admin-token-123456789
+      - INFLUX_ORG=default
+      - INFLUX_DATABASE=sensores
     depends_on:
-      - influxdb3-core
+      - influxdb
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8000/docs || exit 1"]
       interval: 15s
@@ -61,10 +64,12 @@ services:
       - GF_USERS_AUTO_ASSIGN_ORG=true
       - GF_USERS_AUTO_ASSIGN_ORG_ROLE=Admin
     depends_on:
-      - influxdb3-core
+      - influxdb
 
 volumes:
-  influxdb3_data:
+  influxdb_data:
+    driver: local
+  influxdb_config:
     driver: local
   grafana_data:
     driver: local
