@@ -347,59 +347,112 @@ ws.onclose = function() {
 }
 ```
 
-##  API Endpoints
+## 🗄️ Consultas SQL - InfluxDB v3
 
-### Envio de Dados de Sensores
+Uma das principais vantagens desta versão é o **suporte nativo a SQL** no InfluxDB v3.
 
-**POST** `/api/temperature_reading`
+### 🔧 Via API REST
 
-- **Descrição**: Recebe dados de sensores (temperatura, umidade e pressão)
-- **Autenticação**: Header `X-API-Key` obrigatório
-- **Content-Type**: `application/json`
+**POST** `/api/v1/query`
 
-**Exemplo de Requisição:**
-```bash
-curl -X POST "http://localhost:8000/api/temperature_reading" \
-  -H "X-API-Key: sua_chave_http_secreta" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "temperature": 25.5,
-    "humidity": 60.2,
-    "pressure": 1012.5,
-    "sensor_id": "sensor_001"
-  }'
-```
+Execute consultas SQL diretamente no InfluxDB v3 via API.
 
-**Resposta (201 Created):**
+**Headers:**
+- `X-API-Key`: Chave de autenticação
+- `Content-Type`: application/json
+
+**Payload:**
 ```json
 {
-  "id": 123,
-  "temperature": 25.5,
-  "humidity": 60.2,
-  "pressure": 1012.5,
-  "date_recorded": "2025-07-12",
-  "time_recorded": "14:30:45",
-  "sensor_id": "sensor_001",
-  "client_ip": "192.168.1.100"
+  "query": "SELECT * FROM sensor_readings ORDER BY time DESC LIMIT 10"
 }
 ```
 
-### WebSocket para Tempo Real
+**Exemplo cURL:**
+```bash
+curl -X POST "http://localhost:8000/api/v1/query" \
+  -H "X-API-Key: sua_chave_http_secreta" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "SELECT * FROM sensor_readings ORDER BY time DESC LIMIT 10"}'
+```
 
-**WebSocket** `/ws/sensor_updates?api-key=sua_chave_websocket_secreta`
+### 💻 Via CLI (Docker)
 
-- **Descrição**: Recebe dados em tempo real conforme chegam na API
-- **Autenticação**: Query parameter `api-key` obrigatório
+Execute consultas SQL diretamente no container InfluxDB:
 
-**Exemplo JavaScript:**
-```javascript
-const ws = new WebSocket('ws://localhost:8000/ws/sensor_updates?api-key=sua_chave_websocket_secreta');
+```bash
+# Listar 10 registros mais recentes
+docker-compose exec influxdb3-core influxdb3 query \
+  --token "$INFLUX_TOKEN" \
+  --database "sensores" \
+  "SELECT * FROM sensor_readings ORDER BY time DESC LIMIT 10"
 
-ws.onmessage = function(event) {
-    const data = JSON.parse(event.data);
-    console.log('Novos dados do sensor:', data);
-    // Atualizar dashboard em tempo real
-};
+# Contar total de registros
+docker-compose exec influxdb3-core influxdb3 query \
+  --token "$INFLUX_TOKEN" \
+  --database "sensores" \
+  "SELECT COUNT(*) FROM sensor_readings"
+
+# Dados de um sensor específico nas últimas 24h
+docker-compose exec influxdb3-core influxdb3 query \
+  --token "$INFLUX_TOKEN" \
+  --database "sensores" \
+  "SELECT * FROM sensor_readings 
+   WHERE sensor_id = 'sensor_001' 
+   AND time > now() - interval '24 hours'"
+
+# Média de temperatura por sensor
+docker-compose exec influxdb3-core influxdb3 query \
+  --token "$INFLUX_TOKEN" \
+  --database "sensores" \
+  "SELECT sensor_id, AVG(temperature) as avg_temp 
+   FROM sensor_readings 
+   GROUP BY sensor_id"
+```
+
+### 📊 Estrutura dos Dados
+
+Os dados são armazenados na tabela `sensor_readings` com a seguinte estrutura:
+
+| Coluna        | Tipo      | Descrição                    |
+|---------------|-----------|------------------------------|
+| `time`        | Timestamp | Momento da leitura (automático) |
+| `sensor_id`   | String    | Identificador único do sensor |
+| `client_ip`   | String    | IP do cliente que enviou     |
+| `temperature` | Float     | Temperatura em Celsius       |
+| `humidity`    | Float     | Umidade relativa (%)         |
+| `pressure`    | Float     | Pressão atmosférica (hPa)    |
+
+### 🔍 Consultas Úteis
+
+```sql
+-- 📈 Tendência de temperatura nas últimas 2 horas
+SELECT 
+  time,
+  sensor_id,
+  temperature,
+  LAG(temperature) OVER (PARTITION BY sensor_id ORDER BY time) as prev_temp
+FROM sensor_readings 
+WHERE time > now() - interval '2 hours'
+ORDER BY time DESC;
+
+-- 🌡️ Sensores com temperatura crítica
+SELECT DISTINCT sensor_id, MAX(temperature) as max_temp
+FROM sensor_readings 
+WHERE temperature > 30
+GROUP BY sensor_id;
+
+-- 📊 Estatísticas por sensor (última hora)
+SELECT 
+  sensor_id,
+  COUNT(*) as readings_count,
+  AVG(temperature) as avg_temp,
+  MIN(temperature) as min_temp,
+  MAX(temperature) as max_temp,
+  AVG(humidity) as avg_humidity
+FROM sensor_readings 
+WHERE time > now() - interval '1 hour'
+GROUP BY sensor_id;
 ```
 
 ## Integração Grafana
