@@ -109,16 +109,34 @@ sensorflow-server-ethernet/
 - **Single Responsibility**: Cada módulo tem uma única razão para mudar
 - **Interface Segregation**: Interfaces específicas para cada cliente
 
-## Tecnologias
+## 🛠️ Tecnologias
 
-- **Backend**: Python 3.9+, FastAPI
-- **Banco de Dados**: PostgreSQL 13+
-- **ORM**: SQLAlchemy 2.0+
-- **Validação**: Pydantic v2
-- **Comunicação**: WebSockets
-- **Visualização**: Grafana OSS
-- **Contêineres**: Docker, Docker Compose
-- **Logging**: ColorLog
+### Backend & Framework
+- **Python**: 3.11+
+- **FastAPI**: Framework moderno e rápido com documentação automática
+- **Uvicorn**: Servidor ASGI de alta performance
+- **Pydantic**: Validação de dados e serialização
+
+### Banco de Dados & Séries Temporais
+- **InfluxDB v3**: Banco de dados de séries temporais com SQL nativo
+- **influxdb_client_3**: Cliente Python oficial para InfluxDB v3
+
+### Comunicação & Real-time
+- **WebSockets**: Comunicação bidirecional em tempo real
+- **API REST**: Endpoints HTTP para ingestão de dados
+
+### Visualização & Monitoramento
+- **Grafana OSS**: Dashboards e visualização de dados
+- **Health Endpoints**: Monitoramento da saúde da aplicação
+
+### DevOps & Deployment
+- **Docker**: Containerização da aplicação
+- **Docker Compose**: Orquestração multi-container
+- **Dockerfile**: Build automatizado da imagem
+
+### Logging & Configuração
+- **Pydantic Settings**: Gestão de configurações via env vars
+- **Logging**: Sistema de logs estruturado e colorido
 
 ## Instalação
 
