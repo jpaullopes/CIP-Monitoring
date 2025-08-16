@@ -455,72 +455,210 @@ WHERE time > now() - interval '1 hour'
 GROUP BY sensor_id;
 ```
 
-## Integração Grafana
+## 📊 Integração Grafana
 
-O SensorFlow Server implementa provisionamento automático do Grafana, permitindo visualização imediata dos dados sem configuração manual.
+O SensorFlow Server implementa provisionamento automático do Grafana com **InfluxDB v3** como fonte de dados, permitindo visualização imediata dos dados.
 
-### Provisionamento Automático
+### 🔧 Provisionamento Automático
 
-O sistema utiliza um mecanismo de provisionamento que configura automaticamente:
+O sistema configura automaticamente:
 
-- Fonte de dados PostgreSQL
-- Conexão segura com variáveis de ambiente
-- Acesso direto à tabela de dados dos sensores
+- ✅ **Fonte de dados InfluxDB v3** pré-configurada
+- ✅ **Conexão segura** com token e database via variáveis de ambiente
+- ✅ **SQL Query Support** para consultas diretas nas tabelas
+- ✅ **Dashboards pré-configurados** para monitoramento de sensores
 
-### Criação de Dashboards
+### 🎨 Criação de Dashboards
 
-1. Acesse o Grafana em [http://localhost:3000](http://localhost:3000)
-2. Faça login com as credenciais (admin/sua_senha)
-3. Crie um novo dashboard: "+" → "Dashboard" → "Add new panel"
-4. A fonte de dados "PostgreSQL Sensores" estará disponível para consultas
+1. **Acesse o Grafana**: [http://localhost:3000](http://localhost:3000)
+2. **Login**: admin / admin123 (conforme configurado no .env)
+3. **Novo Dashboard**: "+" → "Dashboard" → "Add new panel"
+4. **Fonte de dados**: "InfluxDB v3 Sensores" (pré-configurada)
 
-**Exemplo de Query SQL:**
+### 🔍 Queries SQL para Dashboards
+
+**Temperatura em Tempo Real:**
 ```sql
 SELECT 
-  date_recorded + time_recorded as time, 
-  temperature, 
-  humidity, 
-  pressure
-FROM data 
-WHERE 
-  $__timeFilter(date_recorded + time_recorded) AND
-  sensor_id = 'sensor_001'
+  time as "time",
+  temperature,
+  sensor_id
+FROM sensor_readings 
+WHERE $__timeFilter(time)
+  AND sensor_id = '$sensor_id'
+ORDER BY time DESC
 ```
 
-## Segurança
+**Múltiplos Sensores (Series):**
+```sql
+SELECT 
+  time as "time",
+  temperature,
+  sensor_id as "metric"  
+FROM sensor_readings 
+WHERE $__timeFilter(time)
+GROUP BY sensor_id
+ORDER BY time DESC
+```
 
-O SensorFlow Server implementa múltiplas camadas de segurança:
+**Estatísticas por Período:**
+```sql
+SELECT 
+  time_bucket('5 minutes', time) as "time",
+  sensor_id,
+  AVG(temperature) as avg_temperature,
+  AVG(humidity) as avg_humidity,
+  AVG(pressure) as avg_pressure
+FROM sensor_readings 
+WHERE $__timeFilter(time)
+GROUP BY time_bucket('5 minutes', time), sensor_id
+ORDER BY time
+```
 
-- **API Keys Independentes**: Separação de chaves entre HTTP e WebSocket
-- **Limitação de Conexões**: Controle configurável de conexões por API Key
-- **Validação de Dados**: Validação automática via Pydantic
-- **Sanitização de Inputs**: Proteção contra injeção SQL
-- **Logs Detalhados**: Rastreamento de atividades para auditoria
+**Status de Conexão dos Sensores:**
+```sql
+SELECT 
+  sensor_id,
+  MAX(time) as last_seen,
+  COUNT(*) as total_readings
+FROM sensor_readings 
+WHERE $__timeFilter(time)
+GROUP BY sensor_id
+```
 
-A configuração de segurança é gerenciada através do arquivo `.env`, permitindo customização sem alteração de código.
+### 📈 Tipos de Visualização Recomendados
 
-## Monitoramento
+| Métrica | Tipo de Painel | Query |
+|---------|----------------|-------|
+| **Temperatura** | Time Series | `SELECT time, temperature, sensor_id FROM sensor_readings` |
+| **Umidade** | Gauge | `SELECT AVG(humidity) FROM sensor_readings WHERE time > now() - interval '1 hour'` |
+| **Pressão** | Stat | `SELECT pressure FROM sensor_readings ORDER BY time DESC LIMIT 1` |
+| **Status Sensores** | Table | `SELECT sensor_id, MAX(time) as last_update FROM sensor_readings GROUP BY sensor_id` |
 
-O sistema fornece recursos avançados de monitoramento:
+### 🚨 Alertas e Notificações
 
-### Logs de Serviços
+Configure alertas baseados em thresholds:
+
+```sql
+-- Alerta de temperatura alta
+SELECT 
+  sensor_id,
+  temperature,
+  time
+FROM sensor_readings 
+WHERE temperature > 35
+  AND time > now() - interval '5 minutes'
+```
+
+### 🔧 Variáveis de Dashboard
+
+Crie variáveis para dashboards dinâmicos:
+
+**Variable `sensor_id`:**
+```sql
+SELECT DISTINCT sensor_id FROM sensor_readings
+```
+
+**Variable `time_range`:**
+- Custom: `1h,6h,24h,7d`
+
+Isso permite dashboards interativos onde o usuário pode filtrar por sensor e período de tempo.
+
+## 🛡️ Segurança
+
+O SensorFlow Server implementa múltiplas camadas de segurança empresariais:
+
+### 🔐 Autenticação por API Key
+- **Chaves Independentes**: Separação entre HTTP (`API_KEY`) e WebSocket (`API_KEY_WS`)
+- **Headers Seguros**: Autenticação via `X-API-Key` header
+- **Validação Automática**: Middleware de autenticação em todos os endpoints protegidos
+
+### 🚧 Controle de Acesso
+- **Limitação de Conexões**: Máximo configurável de conexões WebSocket por API Key
+- **Validação de Origem**: Tracking de IP do cliente para auditoria
+- **Sanitização de Inputs**: Validação automática via schemas Pydantic
+
+### 🔒 Proteções Implementadas
+- **SQL Injection**: Consultas preparadas via cliente oficial InfluxDB
+- **CORS**: Configuração de Cross-Origin Resource Sharing
+- **Rate Limiting**: Prevenção de abuso de endpoints
+- **Logs de Auditoria**: Rastreamento detalhado de todas as operações
+
+### 📋 Configuração de Segurança
+
+```dotenv
+# Chaves de 32+ caracteres recomendadas
+API_KEY=sua_chave_http_muito_secreta_e_longa_aqui
+API_KEY_WS=sua_chave_websocket_muito_secreta_e_longa_aqui
+
+# Controle de conexões
+MAX_WS_CONNECTIONS_PER_KEY=10
+
+# InfluxDB Token seguro (gerado automaticamente)
+INFLUX_TOKEN=apiv3_Q7UBMofejrm2UKcSBxcgZWsrq0F9yBplA1rOJcPJRYY...
+```
+
+## 📈 Monitoramento
+
+### 🏥 Health Endpoints
+
+- **`GET /api/v1/health`**: Status completo da aplicação
+- **`GET /api/v1/ping`**: Verificação rápida de saúde
+
+### 📊 Logs de Aplicação
 
 ```bash
-# Monitorar todos os serviços
-docker-compose logs -f
-
-# Filtrar por serviço específico
+# Logs em tempo real
 docker-compose logs -f api
-docker-compose logs -f db
-docker-compose logs -f grafana
+
+# Logs específicos por serviço
+docker-compose logs influxdb3-core  # InfluxDB
+docker-compose logs grafana         # Grafana
+
+# Filtrar por nível de log
+docker-compose logs api | grep ERROR
+docker-compose logs api | grep INFO
 ```
 
-### Métricas Disponíveis
+### 📈 Métricas Disponíveis
 
-- Latência de processamento de requests
-- Taxa de ingestão de dados
-- Conexões WebSocket ativas
-- Estatísticas de uso do banco de dados
+- **Latência de Requests**: Tempo de processamento de cada endpoint
+- **Taxa de Ingestão**: Dados recebidos por minuto/hora
+- **Conexões WebSocket**: Número de conexões ativas
+- **Health Status**: Estado de saúde do InfluxDB e demais serviços
+- **Uso de Recursos**: Memory usage, CPU, Network I/O
+
+### 🚨 Alertas e Monitoramento
+
+**Via Logs:**
+```bash
+# Monitorar erros críticos
+docker-compose logs api | grep "ERROR\|CRITICAL"
+
+# Monitorar conexões WebSocket
+docker-compose logs api | grep "WebSocket"
+
+# Monitorar ingestão de dados
+docker-compose logs api | grep "temperature_reading"
+```
+
+**Via InfluxDB (Queries de Monitoramento):**
+```sql
+-- Taxa de ingestão por hora
+SELECT 
+  date_trunc('hour', time) as hour,
+  COUNT(*) as readings_per_hour
+FROM sensor_readings 
+WHERE time > now() - interval '24 hours'
+GROUP BY hour
+ORDER BY hour;
+
+-- Sensores inativos (sem dados há mais de 1 hora)
+SELECT DISTINCT sensor_id, MAX(time) as last_reading
+FROM sensor_readings 
+GROUP BY sensor_id
+HAVING MAX(time) < now() - interval '1 hour';
+```
 
 ## Desenvolvimento
 
