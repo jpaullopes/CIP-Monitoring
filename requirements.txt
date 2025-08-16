@@ -2,7 +2,7 @@ fastapi
 uvicorn[standard]
 pydantic
 pydantic-settings
-influxdb-client
+influxdb3-python
 python-dotenv
 pytz
 gunicorn

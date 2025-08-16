@@ -42,6 +42,8 @@ services:
       interval: 15s
       timeout: 10s
       retries: 5
+      start_period: 45s
+
   # 3. SERVIÇO DO GRAFANA
   grafana:
     image: grafana/grafana
@@ -69,33 +71,4 @@ volumes:
     driver: local
   grafana_data:
     driver: local
-
-  # 3. SERVIÇO DO GRAFANA
-  grafana:
-    image: grafana/grafana
-    container_name: grafana
-    restart: always
-    ports:
-      - "3000:3000"
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
-      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION=false
-      - GF_USERS_ALLOW_SIGN_UP=false
-      - GF_USERS_ALLOW_ORG_CREATE=false
-      - GF_USERS_AUTO_ASSIGN_ORG=true
-      - GF_USERS_AUTO_ASSIGN_ORG_ROLE=Admin
-    depends_on:
-      - influxdb
-
-volumes:
-  influxdb_data:
-    driver: local
-  influxdb_config:
-    driver: local
-  grafana_data:
     driver: local
