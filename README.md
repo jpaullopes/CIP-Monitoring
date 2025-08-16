@@ -660,34 +660,217 @@ GROUP BY sensor_id
 HAVING MAX(time) < now() - interval '1 hour';
 ```
 
-## Desenvolvimento
+## 🧑‍💻 Desenvolvimento
 
-### Princípios de Design
+### 🎯 Princípios de Design
 
-O SensorFlow Server foi construído seguindo princípios de engenharia de software modernos:
+O SensorFlow Server segue **Clean Architecture** e princípios SOLID:
 
-- **Separação de Responsabilidades**: Cada módulo tem um propósito específico
-- **Injeção de Dependências**: Redução de acoplamento entre componentes
-- **Abstração de Dados**: Interfaces bem definidas entre camadas
-- **Configuração Externa**: Parâmetros definidos via variáveis de ambiente
-- **Testabilidade**: Estrutura projetada para facilitar testes unitários e de integração
+- **🔄 Separation of Concerns**: Cada camada tem responsabilidades bem definidas
+- **📦 Dependency Inversion**: Abstrações não dependem de implementações
+- **🎯 Single Responsibility**: Cada módulo tem uma única razão para mudar
+- **🔧 Interface Segregation**: Interfaces específicas para cada necessidade
+- **🔀 Open/Closed**: Aberto para extensão, fechado para modificação
 
-### Extensão da Aplicação
+### 🏗️ Estrutura do Código
 
-O projeto foi projetado para ser extensível. Você pode:
+```plaintext
+src/
+├── api/v1/                  # 🌐 Interface Layer (Controllers)
+│   ├── routers/            # FastAPI routers
+│   └── schemas/            # Request/Response models
+├── core/                   # 💎 Domain Layer (Business Logic)
+│   ├── models/            # Domain entities
+│   └── services/          # Business rules
+└── infrastructure/        # 🔧 Infrastructure Layer (External)
+    ├── config/           # Configuration management
+    ├── influx/           # Database client
+    ├── logging/          # Logging system
+    ├── security/         # Authentication
+    └── websocket/        # WebSocket manager
+```
 
-- Adicionar novos tipos de sensores
-- Implementar novas estratégias de autenticação
-- Criar endpoints personalizados
-- Expandir a lógica de processamento de dados
+### 🔧 Desenvolvimento Local
 
-### Contribuição
+#### Configurar Ambiente de Desenvolvimento:
 
-1. Faça um fork do repositório
-2. Crie uma branch para sua feature (`git checkout -b feature/nova-funcionalidade`)
-3. Implemente suas mudanças com testes apropriados
-4. Documente alterações no README, se necessário
-5. Envie um Pull Request com descrição detalhada das mudanças
+```bash
+# 1. Clone e entre no diretório
+git clone https://github.com/jpaullopes/sensorflow-server-ethernet.git
+cd sensorflow-server-ethernet
+
+# 2. Crie ambiente virtual Python
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# ou
+venv\Scripts\activate     # Windows
+
+# 3. Instale dependências
+pip install -r requirements.txt
+
+# 4. Configure .env para desenvolvimento
+cp .env.example .env      # Ajuste as variáveis
+```
+
+#### Executar em Modo Desenvolvimento:
+
+```bash
+# Apenas InfluxDB (desenvolvimento da API)
+docker-compose up -d influxdb3-core
+
+# API em desenvolvimento (hot reload)
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+# Todos os serviços
+docker-compose up -d
+```
+
+### 🧪 Testes
+
+```bash
+# Testes unitários
+python -m pytest tests/
+
+# Testes com coverage
+python -m pytest tests/ --cov=src
+
+# Testes de integração
+python -m pytest tests/integration/
+
+# Linting e formatação
+flake8 src/
+black src/
+isort src/
+```
+
+### 📦 Extensibilidade
+
+#### Adicionar Novo Tipo de Sensor:
+
+1. **Schema** (src/api/v1/schemas/):
+```python
+# new_sensor.py
+from pydantic import BaseModel
+
+class NewSensorReading(BaseModel):
+    sensor_id: str
+    custom_value: float
+    # ... outros campos
+```
+
+2. **Router** (src/api/v1/routers/):
+```python
+# new_sensor.py
+from fastapi import APIRouter
+
+router = APIRouter()
+
+@router.post("/new_sensor_reading")
+async def receive_data(data: NewSensorReading):
+    # ... lógica de processamento
+```
+
+3. **Registrar Router** (src/api/v1/routers/__init__.py):
+```python
+from .new_sensor import router as new_sensor_router
+
+api_v1_router.include_router(new_sensor_router, tags=["new_sensor"])
+```
+
+#### Adicionar Nova Funcionalidade:
+
+1. **Service** (src/core/services/):
+```python
+# analytics.py
+class AnalyticsService:
+    def calculate_trends(self, sensor_data):
+        # Lógica de negócio
+        pass
+```
+
+2. **Infrastructure** (src/infrastructure/):
+```python
+# external_api.py  
+class ExternalAPIClient:
+    def send_alert(self, data):
+        # Integração externa
+        pass
+```
+
+### 🤝 Contribuição
+
+#### Fluxo de Contribuição:
+
+1. **Fork** do repositório
+2. **Branch** para sua feature: `git checkout -b feature/nova-funcionalidade`
+3. **Implementar** com testes apropriados
+4. **Documentar** alterações no README (se necessário)
+5. **Pull Request** com descrição detalhada
+
+#### Padrões de Código:
+
+- **Docstrings**: Google Style para todas as funções
+- **Type Hints**: Obrigatório para parâmetros e retornos
+- **Error Handling**: Try/catch com logs apropriados
+- **Testes**: Cobertura mínima de 80%
+
+#### Exemplo de Implementação:
+
+```python
+from typing import Optional
+from src.infrastructure.influx.client import InfluxClient
+
+class SensorService:
+    """Service para processamento de dados de sensores."""
+    
+    def __init__(self, influx_client: InfluxClient):
+        """
+        Args:
+            influx_client: Cliente InfluxDB para persistência.
+        """
+        self.influx_client = influx_client
+    
+    async def process_reading(self, reading: dict) -> Optional[dict]:
+        """
+        Processa leitura de sensor e persiste no InfluxDB.
+        
+        Args:
+            reading: Dados do sensor validados.
+            
+        Returns:
+            Dados processados ou None em caso de erro.
+            
+        Raises:
+            ProcessingError: Se falhar no processamento.
+        """
+        try:
+            # Lógica de processamento
+            result = await self.influx_client.write_data(reading)
+            return result
+        except Exception as e:
+            logger.error(f"Erro ao processar leitura: {e}")
+            raise ProcessingError(f"Falha no processamento: {e}")
+```
+
+### 🔍 Debug e Troubleshooting
+
+```bash
+# Logs detalhados da aplicação
+docker-compose logs -f api
+
+# Acesso ao container para debug
+docker-compose exec api /bin/bash
+
+# Verificar conectividade InfluxDB
+docker-compose exec api python -c "
+from src.infrastructure.influx.client import get_influx_client
+client = get_influx_client()
+print('InfluxDB conectado:', client is not None)
+"
+
+# Testar endpoints manualmente
+curl -H "X-API-Key: sua_chave" http://localhost:8000/api/v1/health
+```
 
 ## Serviços
 
