@@ -165,7 +165,7 @@ API_KEY_WS=sua_chave_websocket_secreta_aqui
 
 # 🗄️ InfluxDB v3 Configuration
 INFLUX_HOST=http://influxdb3-core:8181
-INFLUX_TOKEN=apiv3_Q7UBMofejrm2UKcSBxcgZWsrq0F9yBplA1rOJcPJRYY8xaGV0H4yYLCQ3djH9f4tqPpVQUQGT6UmH2TuHJAV9Q==
+INFLUX_TOKEN=your_influx_token_here
 INFLUX_DATABASE=database
 
 # 🔗 Conexões & Limites  
@@ -211,8 +211,6 @@ docker-compose logs grafana    # Logs do Grafana
 # Parar todos os serviços
 docker-compose down
 
-# Limpar volumes (cuidado: apaga dados!)
-docker-compose down -v
 ```
 
 ## 🛣️ API Endpoints
