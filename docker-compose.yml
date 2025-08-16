@@ -19,11 +19,6 @@ services:
       --object-store file
       --data-dir /var/lib/influxdb3
       --node-id node1
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8181/health || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   # 2. SEU SERVIÇO DE API
   api:
@@ -37,14 +32,13 @@ services:
     environment:
       - INFLUX_HOST=http://influxdb3-core:8181
     depends_on:
-      influxdb3-core:
-        condition: service_healthy
+      - influxdb3-core
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8000/ || exit 1"]
-      interval: 10s
-      timeout: 5s
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/docs || exit 1"]
+      interval: 15s
+      timeout: 10s
       retries: 5
-      start_period: 10s
+      start_period: 45s
 
   # 3. SERVIÇO DO GRAFANA
   grafana:
