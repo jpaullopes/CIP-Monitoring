@@ -355,34 +355,6 @@ docker-compose logs api | grep "temperature_reading"
 
 ## 🧑‍💻 Desenvolvimento
 
-### 🎯 Princípios de Design
-
-O SensorFlow Server segue **Clean Architecture** e princípios SOLID:
-
-- **🔄 Separation of Concerns**: Cada camada tem responsabilidades bem definidas
-- **📦 Dependency Inversion**: Abstrações não dependem de implementações
-- **🎯 Single Responsibility**: Cada módulo tem uma única razão para mudar
-- **🔧 Interface Segregation**: Interfaces específicas para cada necessidade
-- **🔀 Open/Closed**: Aberto para extensão, fechado para modificação
-
-### 🏗️ Estrutura do Código
-
-```plaintext
-src/
-├── api/v1/                  # 🌐 Interface Layer (Controllers)
-│   ├── routers/            # FastAPI routers
-│   └── schemas/            # Request/Response models
-├── core/                   # 💎 Domain Layer (Business Logic)
-│   ├── models/            # Domain entities
-│   └── services/          # Business rules
-└── infrastructure/        # 🔧 Infrastructure Layer (External)
-    ├── config/           # Configuration management
-    ├── influx/           # Database client
-    ├── logging/          # Logging system
-    ├── security/         # Authentication
-    └── websocket/        # WebSocket manager
-```
-
 ### 🔧 Desenvolvimento Local
 
 #### Configurar Ambiente de Desenvolvimento:
@@ -418,148 +390,11 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 docker-compose up -d
 ```
 
-### 🧪 Testes
-
-```bash
-# Testes unitários
-python -m pytest tests/
-
-# Testes com coverage
-python -m pytest tests/ --cov=src
-
-# Testes de integração
-python -m pytest tests/integration/
-
-# Linting e formatação
-flake8 src/
-black src/
-isort src/
-```
-
-### 📦 Extensibilidade
-
-#### Adicionar Novo Tipo de Sensor:
-
-1. **Schema** (src/api/v1/schemas/):
-```python
-# new_sensor.py
-from pydantic import BaseModel
-
-class NewSensorReading(BaseModel):
-    sensor_id: str
-    custom_value: float
-    # ... outros campos
-```
-
-2. **Router** (src/api/v1/routers/):
-```python
-# new_sensor.py
-from fastapi import APIRouter
-
-router = APIRouter()
-
-@router.post("/new_sensor_reading")
-async def receive_data(data: NewSensorReading):
-    # ... lógica de processamento
-```
-
-3. **Registrar Router** (src/api/v1/routers/__init__.py):
-```python
-from .new_sensor import router as new_sensor_router
-
-api_v1_router.include_router(new_sensor_router, tags=["new_sensor"])
-```
-
-#### Adicionar Nova Funcionalidade:
-
-1. **Service** (src/core/services/):
-```python
-# analytics.py
-class AnalyticsService:
-    def calculate_trends(self, sensor_data):
-        # Lógica de negócio
-        pass
-```
-
-2. **Infrastructure** (src/infrastructure/):
-```python
-# external_api.py  
-class ExternalAPIClient:
-    def send_alert(self, data):
-        # Integração externa
-        pass
-```
-
-### 🤝 Contribuição
-
-#### Fluxo de Contribuição:
-
-1. **Fork** do repositório
-2. **Branch** para sua feature: `git checkout -b feature/nova-funcionalidade`
-3. **Implementar** com testes apropriados
-4. **Documentar** alterações no README (se necessário)
-5. **Pull Request** com descrição detalhada
-
-#### Padrões de Código:
-
-- **Docstrings**: Google Style para todas as funções
-- **Type Hints**: Obrigatório para parâmetros e retornos
-- **Error Handling**: Try/catch com logs apropriados
-- **Testes**: Cobertura mínima de 80%
-
-#### Exemplo de Implementação:
-
-```python
-from typing import Optional
-from src.infrastructure.influx.client import InfluxClient
-
-class SensorService:
-    """Service para processamento de dados de database."""
-    
-    def __init__(self, influx_client: InfluxClient):
-        """
-        Args:
-            influx_client: Cliente InfluxDB para persistência.
-        """
-        self.influx_client = influx_client
-    
-    async def process_reading(self, reading: dict) -> Optional[dict]:
-        """
-        Processa leitura de sensor e persiste no InfluxDB.
-        
-        Args:
-            reading: Dados do sensor validados.
-            
-        Returns:
-            Dados processados ou None em caso de erro.
-            
-        Raises:
-            ProcessingError: Se falhar no processamento.
-        """
-        try:
-            # Lógica de processamento
-            result = await self.influx_client.write_data(reading)
-            return result
-        except Exception as e:
-            logger.error(f"Erro ao processar leitura: {e}")
-            raise ProcessingError(f"Falha no processamento: {e}")
-```
-
 ### 🔍 Debug e Troubleshooting
 
 ```bash
 # Logs detalhados da aplicação
 docker-compose logs -f api
-
-# Acesso ao container para debug
-docker-compose exec api /bin/bash
-
-# Verificar conectividade InfluxDB
-docker-compose exec api python -c "
-from src.infrastructure.influx.client import get_influx_client
-client = get_influx_client()
-print('InfluxDB conectado:', client is not None)
-"
 
 # Testar endpoints manualmente
 curl -H "X-API-Key: sua_chave" http://localhost:8000/api/v1/health
@@ -582,33 +417,11 @@ curl -H "X-API-Key: sua_chave" http://localhost:8000/api/v1/health
 - **🏥 Health**: [http://localhost:8000/api/v1/health](http://localhost:8000/api/v1/health) - Status da aplicação
 - **📊 Grafana**: [http://localhost:3000](http://localhost:3000) - admin/admin123
 
-### ⚡ Status da Stack
-
-```bash
-# Verificar status de todos os serviços
-docker-compose ps
-
-# Saúde da aplicação
-curl http://localhost:8000/api/v1/ping
-
-# Verificar InfluxDB
-docker-compose exec influxdb3-core influxdb3 query \
-  --token "$INFLUX_TOKEN" \
-  --database "database" \
-  "SELECT COUNT(*) FROM sensor_readings"
-```
-
 ---
 
 ## 📄 Licença
 
 Este projeto está licenciado sob os termos da **licença MIT** - veja o arquivo [LICENSE](LICENSE) para detalhes.
 
----
-
-### 🚀 **SensorFlow Server - InfluxDB Edition**
-**Desenvolvido com ❤️ em Python | FastAPI | InfluxDB v3**
-
-*Uma solução moderna e escalável para IoT e monitoramento de database em tempo real.*
 
 
