@@ -1,23 +1,24 @@
 version: '3.8'
 
 services:
-  # 1. SERVIÇO DO INFLUXDB v2
-  influxdb:
-    image: influxdb:2.7-alpine
-    container_name: influxdb
+  # 1. SERVIÇO DO INFLUXDB v3
+  influxdb3-core:
+    image: influxdb:3-core
+    container_name: influxdb3-core
     restart: always
     ports:
-      - "8086:8086"    
+      - "8181:8181"    
     volumes:
-      - influxdb_data:/var/lib/influxdb2
-      - influxdb_config:/etc/influxdb2
+      - influxdb3_data:/var/lib/influxdb3
     environment:
-      - DOCKER_INFLUXDB_INIT_MODE=setup
-      - DOCKER_INFLUXDB_INIT_USERNAME=admin
-      - DOCKER_INFLUXDB_INIT_PASSWORD=password123
-      - DOCKER_INFLUXDB_INIT_ORG=default
-      - DOCKER_INFLUXDB_INIT_BUCKET=sensores
-      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=admin-token-123456789
+      - INFLUXDB3_DATA_DIR=/home/influxdb3/.influxdb3
+      - INFLUXDB_IOX_DB_DIR=/var/lib/influxdb3
+      - LOG_FILTER=info
+    command: >
+      influxdb3 serve 
+      --object-store file
+      --data-dir /var/lib/influxdb3
+      --node-id node1
 
   # 2. SEU SERVIÇO DE API
   api:
@@ -30,19 +31,44 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - INFLUX_HOST=influxdb
-      - INFLUX_PORT=8086
-      - INFLUX_TOKEN=admin-token-123456789
-      - INFLUX_ORG=default
+      - INFLUX_HOST=influxdb3-core
+      - INFLUX_PORT=8181
+      - INFLUX_TOKEN=apiv3_Q7UBMofejrZ7HoxRPodiP5canCprE5XTEAusUQj-Fjd07_L7R3GCPP4S_H8p1ikjADNyRfI8MREHh4hUqqkSog
       - INFLUX_DATABASE=sensores
     depends_on:
-      - influxdb
+      - influxdb3-core
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8000/docs || exit 1"]
       interval: 15s
       timeout: 10s
       retries: 5
-      start_period: 45s
+  # 3. SERVIÇO DO GRAFANA
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION=false
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_USERS_ALLOW_ORG_CREATE=false
+      - GF_USERS_AUTO_ASSIGN_ORG=true
+      - GF_USERS_AUTO_ASSIGN_ORG_ROLE=Admin
+    depends_on:
+      - influxdb3-core
+
+volumes:
+  influxdb3_data:
+    driver: local
+  grafana_data:
+    driver: local
 
   # 3. SERVIÇO DO GRAFANA
   grafana:
