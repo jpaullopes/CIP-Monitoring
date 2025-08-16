@@ -138,20 +138,20 @@ sensorflow-server-ethernet/
 - **Pydantic Settings**: Gestão de configurações via env vars
 - **Logging**: Sistema de logs estruturado e colorido
 
-## Instalação
+## 🚀 Instalação
 
 ### Pré-requisitos
 
 - [Docker](https://docs.docker.com/get-docker/) (v20.10+)
 - [Docker Compose](https://docs.docker.com/compose/install/) (v2.0+)
 
-### Configuração Rápida
+### ⚡ Configuração Rápida
 
 1. **Clone o repositório**
 
 ```bash
-git clone https://github.com/jpaullopes/sensorflow-server.git
-cd sensorflow-server
+git clone https://github.com/jpaullopes/sensorflow-server-ethernet.git
+cd sensorflow-server-ethernet
 ```
 
 2. **Configure o ambiente**
@@ -159,41 +159,69 @@ cd sensorflow-server
 Crie um arquivo `.env` na raiz:
 
 ```dotenv
-# API Keys de segurança
-API_KEY=sua_chave_http_secreta
-API_KEY_WS=sua_chave_websocket_secreta
+# 🔐 API Keys de Segurança
+API_KEY=sua_chave_http_secreta_aqui
+API_KEY_WS=sua_chave_websocket_secreta_aqui
 
-# PostgreSQL
-POSTGRES_USER=sensoruser
-POSTGRES_PASSWORD=sensorpass
-POSTGRES_DB=sensordb
-DATABASE_URL=postgresql://sensoruser:sensorpass@db:5432/sensordb
+# 🗄️ InfluxDB v3 Configuration
+INFLUX_HOST=http://influxdb3-core:8181
+INFLUX_TOKEN=apiv3_Q7UBMofejrm2UKcSBxcgZWsrq0F9yBplA1rOJcPJRYY8xaGV0H4yYLCQ3djH9f4tqPpVQUQGT6UmH2TuHJAV9Q==
+INFLUX_DATABASE=sensores
 
-# Limites de conexão
+# 🔗 Conexões & Limites  
 MAX_WS_CONNECTIONS_PER_KEY=10
 
-# Grafana
+# 📊 Grafana
 GF_SECURITY_ADMIN_PASSWORD=admin123
 ```
 
-3. **Inicie a stack**
+3. **Inicie a stack completa**
 
 ```bash
+# Iniciar todos os serviços
 docker-compose up -d
+
+# Verificar status dos containers
+docker-compose ps
+
+# Acompanhar logs em tempo real
+docker-compose logs -f api
 ```
 
 4. **Acesse os serviços**
 
-- **API**: [http://localhost:8000](http://localhost:8000)
-- **Grafana**: [http://localhost:3000](http://localhost:3000) (admin/sua_senha)
+| Serviço    | URL                                        | Credenciais      |
+|------------|--------------------------------------------|------------------|
+| **API**    | [http://localhost:8000](http://localhost:8000) | API Key via header |
+| **Docs**   | [http://localhost:8000/docs](http://localhost:8000/docs) | Interface Swagger |
+| **InfluxDB**| [http://localhost:8181](http://localhost:8181) | Token via env    |
+| **Grafana** | [http://localhost:3000](http://localhost:3000) | admin/admin123  |
 
-## API Endpoints
+### 🔧 Comandos Úteis
 
-### Recepção de Dados de Sensores
+```bash
+# Rebuild apenas a API (após mudanças no código)
+docker-compose up --build -d api
 
-**POST** `/api/temperature_reading`
+# Verificar logs específicos
+docker-compose logs api        # Logs da API
+docker-compose logs influxdb3-core  # Logs do InfluxDB
+docker-compose logs grafana    # Logs do Grafana
 
-Endpoint para envio de dados de sensores, protegido por API Key.
+# Parar todos os serviços
+docker-compose down
+
+# Limpar volumes (cuidado: apaga dados!)
+docker-compose down -v
+```
+
+## 🛣️ API Endpoints
+
+### 📡 Recepção de Dados de Sensores
+
+**POST** `/api/v1/temperature_reading`
+
+Endpoint principal para envio de dados de sensores, protegido por API Key.
 
 **Headers necessários:**
 - `X-API-Key`: Chave de autenticação para API
@@ -202,9 +230,9 @@ Endpoint para envio de dados de sensores, protegido por API Key.
 **Payload:**
 ```json
 {
-  "temperature": 25.5,    // Temperatura em Celsius
-  "humidity": 60.2,       // Umidade relativa (%)
-  "pressure": 1012.5,     // Pressão atmosférica (hPa)
+  "temperature": 25.5,      // Temperatura em Celsius
+  "humidity": 60.2,         // Umidade relativa (%)
+  "pressure": 1012.5,       // Pressão atmosférica (hPa)  
   "sensor_id": "sensor_001" // ID único do sensor
 }
 ```
@@ -216,31 +244,107 @@ Endpoint para envio de dados de sensores, protegido por API Key.
   "temperature": 25.5,
   "humidity": 60.2,
   "pressure": 1012.5,
-  "date_recorded": "2023-07-12",
+  "date_recorded": "2025-08-16",
   "time_recorded": "14:30:45",
   "sensor_id": "sensor_001",
   "client_ip": "192.168.1.100"
 }
 ```
 
-### WebSocket para Tempo Real
+**Exemplo cURL:**
+```bash
+curl -X POST "http://localhost:8000/api/v1/temperature_reading" \
+  -H "X-API-Key: sua_chave_http_secreta" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "temperature": 25.5,
+    "humidity": 60.2, 
+    "pressure": 1012.5,
+    "sensor_id": "sensor_001"
+  }'
+```
 
-**Endpoint:** `/ws/sensor_updates`
+### 🏥 Health Monitoring
 
-Conexão WebSocket para receber dados em tempo real.
+**GET** `/api/v1/health`
+
+Endpoint completo de saúde da aplicação com informações detalhadas.
+
+**Resposta:**
+```json
+{
+  "status": "healthy",
+  "timestamp": "2025-08-16T15:30:45.123Z",
+  "version": "2.1.0",
+  "services": {
+    "influxdb": "connected",
+    "websocket_manager": "active"
+  },
+  "uptime_seconds": 3600
+}
+```
+
+**GET** `/api/v1/ping`
+
+Endpoint simples para verificação rápida (health check).
+
+**Resposta:**
+```json
+{
+  "status": "ok",
+  "message": "SensorFlow API is running"
+}
+```
+
+### 🔍 Consulta de Dados
+
+**GET** `/api/v1/sensor/{sensor_id}/latest`
+
+Busca o último registro de um sensor específico.
+
+**Exemplo:**
+```bash
+curl -H "X-API-Key: sua_chave" \
+  "http://localhost:8000/api/v1/sensor/sensor_001/latest"
+```
+
+### 🌐 WebSocket para Tempo Real
+
+**WebSocket** `/ws/sensor_updates?api-key=sua_chave_websocket`
+
+Conexão WebSocket para receber dados em tempo real conforme chegam na API.
 
 **Parâmetros de Query:**
-- `api-key`: Chave de autenticação para WebSocket
+- `api-key`: Chave de autenticação para WebSocket (obrigatório)
 
 **Exemplo JavaScript:**
 ```javascript
 const ws = new WebSocket('ws://localhost:8000/ws/sensor_updates?api-key=sua_chave_websocket');
 
+ws.onopen = function() {
+    console.log('🔌 Conectado ao WebSocket');
+};
+
 ws.onmessage = function(event) {
     const data = JSON.parse(event.data);
-    console.log('Dados recebidos:', data);
-    // Processamento em tempo real
+    console.log('📡 Novos dados:', data);
+    // Atualizar dashboard em tempo real
 };
+
+ws.onclose = function() {
+    console.log('🔌 Desconectado do WebSocket');
+};
+```
+
+**Dados recebidos em tempo real:**
+```json
+{
+  "temperature": 25.5,
+  "humidity": 60.2, 
+  "pressure": 1012.5,
+  "sensor_id": "sensor_001",
+  "timestamp": "2025-08-16T15:30:45.123Z"
+}
 ```
 
 ##  API Endpoints
