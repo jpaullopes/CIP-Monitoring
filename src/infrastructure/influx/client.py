@@ -1,55 +1,45 @@
-from influxdb_client import InfluxDBClient, Point
-from influxdb_client.client.write_api import SYNCHRONOUS
+from influxdb3_python import InfluxDBClient3, Point
 from datetime import datetime, timezone
 from src.infrastructure.config.settings import settings, app_state
 from src.infrastructure.logging.config import get_logger
 
 logger = get_logger(__name__)
-_client: InfluxDBClient | None = None
-_write_api = None
+_client: InfluxDBClient3 | None = None
 
 def initialize_influx():
-    global _client, _write_api
+    global _client
     if _client is not None:
         return _client
     try:
-        # Create InfluxDB client with correct URL format
-        url = f"http://{settings.INFLUX_HOST}:{settings.INFLUX_PORT}"
-        _client = InfluxDBClient(
-            url=url,
-            token=settings.INFLUX_TOKEN,
-            org=settings.INFLUX_ORG
+        # URL baseado no protocolo HTTP direto para InfluxDB v3
+        influx_url = f"http://{settings.INFLUX_HOST}:{settings.INFLUX_PORT}"
+        
+        _client = InfluxDBClient3(
+            host=influx_url,
+            token=settings.INFLUX_TOKEN, 
+            database=settings.INFLUX_DATABASE
         )
         
-        # Create write API
-        _write_api = _client.write_api(write_options=SYNCHRONOUS)
+        # Test write para verificar conectividade
+        test_point = Point("startup_test").field("value", 1).time(datetime.now(timezone.utc))
+        _client.write(record=test_point)
         
-        # Test connection
-        health = _client.health()
-        if health.status == "pass":
-            # Test write
-            test_point = Point("startup_test").field("value", 1).time(datetime.now(timezone.utc))
-            _write_api.write(bucket=settings.INFLUX_DATABASE, record=test_point)
-            
-            app_state.influx_is_connected = True
-            logger.info("InfluxDB initialized successfully.")
-        else:
-            app_state.influx_is_connected = False
-            logger.error(f"InfluxDB health check failed: {health.message}")
-            
+        app_state.influx_is_connected = True
+        logger.info("InfluxDB v3 initialized successfully with SQL support.")
+        
     except Exception as e:
         app_state.influx_is_connected = False
-        logger.error(f"Failed to initialize InfluxDB: {e}")
+        logger.error(f"Failed to initialize InfluxDB v3: {e}")
         _client = None
-        _write_api = None
+        
     return _client
 
-def get_client() -> InfluxDBClient | None:
+def get_client() -> InfluxDBClient3 | None:
     return _client if app_state.influx_is_connected else None
 
 def write_sensor_data(temperature: float, humidity: float, pressure: float, sensor_id: str, client_ip: str | None):
-    if not app_state.influx_is_connected or _client is None or _write_api is None:
-        logger.warning("Influx unavailable, skipping write.")
+    if not app_state.influx_is_connected or _client is None:
+        logger.warning("InfluxDB v3 unavailable, skipping write.")
         return False
     try:
         point = (
@@ -61,20 +51,37 @@ def write_sensor_data(temperature: float, humidity: float, pressure: float, sens
             .field("pressure", float(pressure))
             .time(datetime.now(timezone.utc))
         )
-        _write_api.write(bucket=settings.INFLUX_DATABASE, record=point)
+        _client.write(record=point)
+        logger.info(f"Data written to InfluxDB v3: sensor={sensor_id}, temp={temperature}")
         return True
+        
     except Exception as e:
-        logger.error(f"Write failed: {e}")
+        logger.error(f"InfluxDB v3 write failed: {e}")
         app_state.influx_is_connected = False
         return False
 
+def query_sensor_data_sql(sql_query: str):
+    """Executa consulta SQL no InfluxDB v3"""
+    if not app_state.influx_is_connected or _client is None:
+        logger.warning("InfluxDB v3 unavailable, cannot execute query.")
+        return None
+    
+    try:
+        # InfluxDB v3 suporta consultas SQL nativas!
+        result = _client.query(sql=sql_query)
+        logger.info(f"SQL query executed successfully: {sql_query[:100]}...")
+        return result
+        
+    except Exception as e:
+        logger.error(f"SQL query failed: {e}")
+        return None
+
 def close_influx_connection():
     """Close InfluxDB connection."""
-    global _client, _write_api
+    global _client
     
     if _client:
         _client.close()
         app_state.influx_is_connected = False
         _client = None
-        _write_api = None
-        logger.info("InfluxDB connection closed")
+        logger.info("InfluxDB v3 connection closed")

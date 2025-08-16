@@ -5,9 +5,8 @@ class Settings(BaseSettings):
     API_KEY: str | None = None
     API_KEY_WS: str | None = None
     INFLUX_HOST: str = "localhost"
-    INFLUX_PORT: int = 8086
+    INFLUX_PORT: int = 8181
     INFLUX_TOKEN: str | None = None
-    INFLUX_ORG: str = "default"
     INFLUX_DATABASE: str = "sensores"
     MAX_WS_CONNECTIONS_PER_KEY: int = 0
 
