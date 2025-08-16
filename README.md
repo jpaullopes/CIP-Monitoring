@@ -264,34 +264,7 @@ ws.onclose = function() {
 
 ## 🗄️ Consultas SQL - InfluxDB v3
 
-Uma das principais vantagens desta versão é o **suporte nativo a SQL** no InfluxDB v3.
-
-### 🔧 Via API REST
-
-**POST** `/api/v1/query`
-
-Execute consultas SQL diretamente no InfluxDB v3 via API.
-
-**Headers:**
-- `X-API-Key`: Chave de autenticação
-- `Content-Type`: application/json
-
-**Payload:**
-```json
-{
-  "query": "SELECT * FROM sensor_readings ORDER BY time DESC LIMIT 10"
-}
-```
-
-**Exemplo cURL:**
-```bash
-curl -X POST "http://localhost:8000/api/v1/query" \
-  -H "X-API-Key: sua_chave_http_secreta" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "SELECT * FROM sensor_readings ORDER BY time DESC LIMIT 10"}'
-```
-
-### 💻 Via CLI (Docker)
+Uma das principais vantagens desta versão é o suporte nativo a SQL no InfluxDB v3.
 
 Execute consultas SQL diretamente no container InfluxDB:
 
@@ -302,77 +275,11 @@ docker-compose exec influxdb3-core influxdb3 query \
   --database "database" \
   "SELECT * FROM sensor_readings ORDER BY time DESC LIMIT 10"
 
-# Contar total de registros
-docker-compose exec influxdb3-core influxdb3 query \
-  --token "$INFLUX_TOKEN" \
-  --database "database" \
-  "SELECT COUNT(*) FROM sensor_readings"
-
-# Dados de um sensor específico nas últimas 24h
-docker-compose exec influxdb3-core influxdb3 query \
-  --token "$INFLUX_TOKEN" \
-  --database "database" \
-  "SELECT * FROM sensor_readings 
-   WHERE sensor_id = 'sensor_001' 
-   AND time > now() - interval '24 hours'"
-
-# Média de temperatura por sensor
-docker-compose exec influxdb3-core influxdb3 query \
-  --token "$INFLUX_TOKEN" \
-  --database "database" \
-  "SELECT sensor_id, AVG(temperature) as avg_temp 
-   FROM sensor_readings 
-   GROUP BY sensor_id"
-```
-
-### 📊 Estrutura dos Dados
-
-Os dados são armazenados na tabela `sensor_readings` com a seguinte estrutura:
-
-| Coluna        | Tipo      | Descrição                    |
-|---------------|-----------|------------------------------|
-| `time`        | Timestamp | Momento da leitura (automático) |
-| `sensor_id`   | String    | Identificador único do sensor |
-| `client_ip`   | String    | IP do cliente que enviou     |
-| `temperature` | Float     | Temperatura em Celsius       |
-| `humidity`    | Float     | Umidade relativa (%)         |
-| `pressure`    | Float     | Pressão atmosférica (hPa)    |
-
-### 🔍 Consultas Úteis
-
-```sql
--- 📈 Tendência de temperatura nas últimas 2 horas
-SELECT 
-  time,
-  sensor_id,
-  temperature,
-  LAG(temperature) OVER (PARTITION BY sensor_id ORDER BY time) as prev_temp
-FROM sensor_readings 
-WHERE time > now() - interval '2 hours'
-ORDER BY time DESC;
-
--- 🌡️ database com temperatura crítica
-SELECT DISTINCT sensor_id, MAX(temperature) as max_temp
-FROM sensor_readings 
-WHERE temperature > 30
-GROUP BY sensor_id;
-
--- 📊 Estatísticas por sensor (última hora)
-SELECT 
-  sensor_id,
-  COUNT(*) as readings_count,
-  AVG(temperature) as avg_temp,
-  MIN(temperature) as min_temp,
-  MAX(temperature) as max_temp,
-  AVG(humidity) as avg_humidity
-FROM sensor_readings 
-WHERE time > now() - interval '1 hour'
-GROUP BY sensor_id;
 ```
 
 ## 📊 Integração Grafana
 
-O SensorFlow Server implementa provisionamento automático do Grafana com **InfluxDB v3** como fonte de dados, permitindo visualização imediata dos dados.
+O SensorFlow Server implementa provisionamento automático do Grafana com InfluxDB v3 como fonte de dados, permitindo visualização imediata dos dados.
 
 ### 🔧 Provisionamento Automático
 
@@ -390,98 +297,10 @@ O sistema configura automaticamente:
 3. **Novo Dashboard**: "+" → "Dashboard" → "Add new panel"
 4. **Fonte de dados**: "InfluxDB v3 database" (pré-configurada)
 
-### 🔍 Queries SQL para Dashboards
-
-**Temperatura em Tempo Real:**
-```sql
-SELECT 
-  time as "time",
-  temperature,
-  sensor_id
-FROM sensor_readings 
-WHERE $__timeFilter(time)
-  AND sensor_id = '$sensor_id'
-ORDER BY time DESC
 ```
-
-**Múltiplos database (Series):**
-```sql
-SELECT 
-  time as "time",
-  temperature,
-  sensor_id as "metric"  
-FROM sensor_readings 
-WHERE $__timeFilter(time)
-GROUP BY sensor_id
-ORDER BY time DESC
-```
-
-**Estatísticas por Período:**
-```sql
-SELECT 
-  time_bucket('5 minutes', time) as "time",
-  sensor_id,
-  AVG(temperature) as avg_temperature,
-  AVG(humidity) as avg_humidity,
-  AVG(pressure) as avg_pressure
-FROM sensor_readings 
-WHERE $__timeFilter(time)
-GROUP BY time_bucket('5 minutes', time), sensor_id
-ORDER BY time
-```
-
-**Status de Conexão dos database:**
-```sql
-SELECT 
-  sensor_id,
-  MAX(time) as last_seen,
-  COUNT(*) as total_readings
-FROM sensor_readings 
-WHERE $__timeFilter(time)
-GROUP BY sensor_id
-```
-
-### 📈 Tipos de Visualização Recomendados
-
-| Métrica | Tipo de Painel | Query |
-|---------|----------------|-------|
-| **Temperatura** | Time Series | `SELECT time, temperature, sensor_id FROM sensor_readings` |
-| **Umidade** | Gauge | `SELECT AVG(humidity) FROM sensor_readings WHERE time > now() - interval '1 hour'` |
-| **Pressão** | Stat | `SELECT pressure FROM sensor_readings ORDER BY time DESC LIMIT 1` |
-| **Status database** | Table | `SELECT sensor_id, MAX(time) as last_update FROM sensor_readings GROUP BY sensor_id` |
-
-### 🚨 Alertas e Notificações
-
-Configure alertas baseados em thresholds:
-
-```sql
--- Alerta de temperatura alta
-SELECT 
-  sensor_id,
-  temperature,
-  time
-FROM sensor_readings 
-WHERE temperature > 35
-  AND time > now() - interval '5 minutes'
-```
-
-### 🔧 Variáveis de Dashboard
-
-Crie variáveis para dashboards dinâmicos:
-
-**Variable `sensor_id`:**
-```sql
-SELECT DISTINCT sensor_id FROM sensor_readings
-```
-
-**Variable `time_range`:**
-- Custom: `1h,6h,24h,7d`
-
-Isso permite dashboards interativos onde o usuário pode filtrar por sensor e período de tempo.
-
 ## 🛡️ Segurança
 
-O SensorFlow Server implementa múltiplas camadas de segurança empresariais:
+O SensorFlow Server implementa múltiplas camadas de segurança:
 
 ### 🔐 Autenticação por API Key
 - **Chaves Independentes**: Separação entre HTTP (`API_KEY`) e WebSocket (`API_KEY_WS`)
