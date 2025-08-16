@@ -1,72 +1,69 @@
 version: '3.8'
 
 services:
-  # 1. SERVIÇO DO BANCO DE DADOS POSTGRESQL
-  db:
-    image: postgres:16
-    container_name: sensorflow-db
+  # 1. SERVIÇO DO INFLUXDB v3
+  influxdb3-core:
+    image: influxdb:3-core
+    container_name: influxdb3-core
     restart: always
-    env_file:
-      - .env
+    ports:
+      - "8181:8181"    
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    expose:
-      - "5432"
+      - influxdb3_data:/var/lib/influxdb3
+    environment:
+      - INFLUXDB3_DATA_DIR=/home/influxdb3/.influxdb3
+      - INFLUXDB_IOX_DB_DIR=/var/lib/influxdb3
+      - LOG_FILTER=info
+    command: >
+      influxdb3 serve 
+      --object-store file
+      --data-dir /var/lib/influxdb3
+      --node-id node1
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 5s
+      test: ["CMD-SHELL", "curl -f http://localhost:8181/health || exit 1"]
+      interval: 10s
       timeout: 5s
       retries: 5
 
   # 2. SEU SERVIÇO DE API
   api:
     build: .
-    container_name: temp-data-api
+    container_name: sensorflow-api
     restart: always
     env_file:
       - .env
     ports:
       - "8000:8000"
+    environment:
+      - INFLUX_HOST=http://influxdb3-core:8181
     depends_on:
-      db:
+      influxdb3-core:
         condition: service_healthy
 
   # 3. SERVIÇO DO GRAFANA
   grafana:
-    image: grafana/grafana-oss:11.0.0
+    image: grafana/grafana
     container_name: grafana
     restart: always
-    user: "0"
     ports:
       - "3000:3000"
-    env_file:
-      - .env
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
     environment:
       - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin123
-      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
-      - GF_USERS_ALLOW_SIGN_UP=false
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin123
-      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION=false
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_USERS_ALLOW_ORG_CREATE=false
       - GF_USERS_AUTO_ASSIGN_ORG=true
       - GF_USERS_AUTO_ASSIGN_ORG_ROLE=Admin
-      - GF_PATHS_DATA=/var/lib/grafana
-      - GF_PATHS_LOGS=/var/log/grafana
-      - GF_PATHS_PLUGINS=/var/lib/grafana/plugins
-      - GF_DATABASE_TYPE=sqlite3
-      - GF_DATABASE_PATH=/var/lib/grafana/grafana.db
-      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/d/sensores-iot
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning
     depends_on:
-      db:
-        condition: service_healthy
+      - influxdb3-core
 
 volumes:
-  postgres_data:
+  influxdb3_data:
+    driver: local
   grafana_data:
+    driver: local
