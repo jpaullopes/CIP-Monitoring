@@ -11,7 +11,6 @@
 **Principais Diferenciais:**
 - 🏗️ **Arquitetura Clean**: Organização modular seguindo princípios de Clean Architecture
 - 🗄️ **InfluxDB v3**: Banco de dados de séries temporais com suporte SQL nativo
-- 📊 **Consultas SQL**: Queries diretas no InfluxDB v3 via API REST
 - 🔄 **Real-time**: WebSockets para streaming de dados em tempo real
 - 🛡️ **Segurança**: Autenticação por API Key com controle granular
 
@@ -19,27 +18,12 @@
 
 ---
 
-## Índice
-
-- [Funcionalidades](#funcionalidades)
-- [Arquitetura](#-arquitetura)  
-- [Tecnologias](#-tecnologias)
-- [Instalação](#-instalação)
-- [API Endpoints](#-api-endpoints)
-- [Consultas SQL](#-consultas-sql-influxdb-v3)
-- [Integração Grafana](#-integração-grafana)
-- [Segurança](#-segurança)
-- [Monitoramento](#-monitoramento)
-- [Desenvolvimento](#-desenvolvimento)
-- [Licença](#-licença)
-
 ## 🌟 Funcionalidades
 
 ### ✨ Core Features
 - **API REST Segura**: Endpoints protegidos por API Key para recepção de dados de database
 - **WebSocket em Tempo Real**: Distribuição instantânea de dados para clientes conectados
-- **InfluxDB v3**: Armazenamento de séries temporais com **consultas SQL nativas**
-- **Health Monitoring**: Endpoints de saúde para monitoramento da aplicação
+- **InfluxDB v3**: Armazenamento de séries temporais com consultas SQL nativas
 - **Visualização com Grafana**: Dashboards personalizáveis para análise de dados
 
 ### 🏗️ Arquitetura Moderna
@@ -58,56 +42,6 @@
 - **Docker Compose**: Stack completa com orquestração de serviços
 - **Healthchecks**: Verificação automática de saúde dos containers
 - **Compatibilidade Ethernet**: Suporte nativo para módulos W5500 e W5100
-- **CLI Tools**: Comandos diretos para interação com InfluxDB v3
-
-## 🏗️ Arquitetura
-
-O projeto segue **Clean Architecture** com separação clara de responsabilidades em camadas:
-
-```plaintext
-sensorflow-server-ethernet/
-├── app/                           # 🚀 Camada de Aplicação
-│   ├── main.py                   # Entry point FastAPI
-│   ├── lifecycle.py              # Hooks de startup/shutdown
-│   └── dependencies.py           # Injeção de dependências
-├── src/                          # 📦 Código fonte modular
-│   ├── api/v1/                   # 🛣️ Camada de Interface (Routers)
-│   │   ├── routers/
-│   │   │   ├── temperature.py    # Endpoints de database
-│   │   │   ├── websocket.py      # WebSocket real-time
-│   │   │   ├── health.py         # Health monitoring
-│   │   │   └── query.py          # Consultas SQL InfluxDB
-│   │   └── schemas/
-│   │       └── temperature.py    # Modelos Pydantic
-│   ├── core/                     # 💎 Camada de Domínio
-│   │   ├── models/               # Entidades de negócio
-│   │   └── services/             # Lógica de domínio
-│   └── infrastructure/           # 🔧 Camada de Infraestrutura
-│       ├── config/
-│       │   └── settings.py       # Configurações da aplicação
-│       ├── influx/
-│       │   └── client.py         # Cliente InfluxDB v3
-│       ├── logging/
-│       │   └── config.py         # Sistema de logs
-│       ├── security/
-│       │   └── api_key.py        # Autenticação API Key
-│       └── websocket/
-│           └── manager.py        # Gerenciamento WebSocket
-├── docker-compose.yml            # 🐳 Orquestração dos serviços
-├── Dockerfile                    # 📦 Definição da imagem
-├── requirements.txt              # 📋 Dependências Python
-└── grafana/                      # 📊 Configuração Grafana
-    └── provisioning/
-        ├── datasources/          # InfluxDB datasource
-        └── dashboards/           # Dashboards pré-configurados
-```
-
-### 🎯 Princípios Arquiteturais
-
-- **Separation of Concerns**: Cada camada tem responsabilidades bem definidas
-- **Dependency Inversion**: Abstrações não dependem de implementações
-- **Single Responsibility**: Cada módulo tem uma única razão para mudar
-- **Interface Segregation**: Interfaces específicas para cada cliente
 
 ## 🛠️ Tecnologias
 
@@ -126,7 +60,7 @@ sensorflow-server-ethernet/
 - **API REST**: Endpoints HTTP para ingestão de dados
 
 ### Visualização & Monitoramento
-- **Grafana OSS**: Dashboards e visualização de dados
+- **Grafana**: Dashboards e visualização de dados
 - **Health Endpoints**: Monitoramento da saúde da aplicação
 
 ### DevOps & Deployment
@@ -136,7 +70,7 @@ sensorflow-server-ethernet/
 
 ### Logging & Configuração
 - **Pydantic Settings**: Gestão de configurações via env vars
-- **Logging**: Sistema de logs estruturado e colorido
+- **Logging**: Sistema de logs estruturado 
 
 ## 🚀 Instalação
 
@@ -156,24 +90,7 @@ cd sensorflow-server-ethernet
 
 2. **Configure o ambiente**
 
-Crie um arquivo `.env` na raiz:
-
-```dotenv
-# 🔐 API Keys de Segurança
-API_KEY=sua_chave_http_secreta_aqui
-API_KEY_WS=sua_chave_websocket_secreta_aqui
-
-# 🗄️ InfluxDB v3 Configuration
-INFLUX_HOST=http://influxdb3-core:8181
-INFLUX_TOKEN=your_influx_token_here
-INFLUX_DATABASE=database
-
-# 🔗 Conexões & Limites  
-MAX_WS_CONNECTIONS_PER_KEY=10
-
-# 📊 Grafana
-GF_SECURITY_ADMIN_PASSWORD=admin123
-```
+Crie um arquivo `.env` na raiz, seguindo o exemplo do [`.env.example`](./.env.example).
 
 3. **Inicie a stack completa**
 
@@ -249,7 +166,7 @@ Endpoint principal para envio de dados de database, protegido por API Key.
 }
 ```
 
-**Exemplo cURL:**
+**Exemplo CURL:**
 ```bash
 curl -X POST "http://localhost:8000/api/v1/temperature_reading" \
   -H "X-API-Key: sua_chave_http_secreta" \
