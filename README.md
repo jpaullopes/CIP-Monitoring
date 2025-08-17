@@ -124,20 +124,22 @@ docker-compose down
 
 ## API Endpoints
 
-### Recepção de Dados de database
+### Recepção de Dados CIP
 
-**POST** `/api/v1/temperature_reading` (campos: temperature, humidity, pressure, sensor_id)
+**POST** `/api/v1/cip_monitoring` (campos: temperature, pressure, concentration, id_sensor, cip_id, status_cip)
 
 Exemplo único (cURL):
 ```bash
-curl -X POST "http://localhost:8000/api/v1/temperature_reading" \
+curl -X POST "http://localhost:8000/api/v1/cip_monitoring" \
   -H "X-API-Key: sua_chave_http_secreta" \
   -H "Content-Type: application/json" \
   -d '{
-    "temperature": 25.5,
-    "humidity": 60.2,
-    "pressure": 1012.5,
-    "sensor_id": "sensor_001"
+    "temperature": 75.5,
+    "pressure": 2.3,
+    "concentration": 0.8,
+    "id_sensor": "sensor_001",
+    "cip_id": "CIP_001",
+    "status_cip": "active"
   }'
 ```
 
@@ -165,10 +167,12 @@ Conexão WebSocket para receber dados em tempo real conforme chegam na API.
 **Dados recebidos em tempo real:**
 ```json
 {
-  "temperature": 25.5,
-  "humidity": 60.2, 
-  "pressure": 1012.5,
-  "sensor_id": "sensor_001",
+  "temperature": 75.5,
+  "pressure": 2.3,
+  "concentration": 0.8,
+  "id_sensor": "sensor_001",
+  "cip_id": "CIP_001",
+  "status_cip": "active",
   "timestamp": "2025-08-16T15:30:45.123Z"
 }
 ```
@@ -182,7 +186,7 @@ Uma das principais vantagens desta versão é o suporte nativo a SQL no InfluxDB
 docker-compose exec influxdb3-core influxdb3 query \
   --token "$INFLUX_TOKEN" \
   --database "database" \
-  "SELECT * FROM sensor_readings ORDER BY time DESC LIMIT 10"
+  "SELECT * FROM manitoramento_cip ORDER BY time DESC LIMIT 10"
 
 ```
 
