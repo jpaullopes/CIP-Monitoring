@@ -13,10 +13,10 @@ Backend FastAPI para monitoramento de processos CIP (Clean-in-Place) com ingest�
 ## Funcionalidades
 
 ### Core Features
-- **API REST Segura**: Endpoints protegidos por API Key para recepção de dados de database
-- **WebSocket em Tempo Real**: Distribuição instantânea de dados para clientes conectados
+- **API REST Segura**: Endpoints protegidos por API Key para recepção de dados de monitoramento CIP
+- **WebSocket em Tempo Real**: Distribuição instantânea de dados CIP para clientes conectados
 - **InfluxDB v3**: Armazenamento de séries temporais com consultas SQL nativas
-- **Visualização com Grafana**: Dashboards personalizáveis para análise de dados
+- **Visualização com Grafana**: Dashboards personalizáveis para análise de processos CIP
 
 ### Arquitetura Moderna
 - **Clean Architecture**: Separação clara entre domínio, aplicação e infraestrutura
