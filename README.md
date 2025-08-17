@@ -319,6 +319,3 @@ curl -H "X-API-Key: sua_chave" http://localhost:8000/api/v1/health
 ## Licença
 
 Este projeto está licenciado sob os termos da **licença MIT**, veja o arquivo [LICENSE](LICENSE) para detalhes.
-
-
-
