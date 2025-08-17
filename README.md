@@ -192,7 +192,7 @@ docker-compose exec influxdb3-core influxdb3 query \
 
 ## Integração Grafana
 
-O SensorFlow Server implementa provisionamento automático do Grafana com InfluxDB v3 como fonte de dados, permitindo visualização imediata dos dados.
+O SensorFlow Server implementa provisionamento automático do Grafana com InfluxDB v3 como fonte de dados, permitindo visualização dos dados CIP.
 
 ### Provisionamento Automático
 
@@ -201,7 +201,6 @@ O sistema configura automaticamente:
 - **Fonte de dados InfluxDB v3** pré-configurada
 - **Conexão segura** com token e database via variáveis de ambiente
 - **SQL Query Support** para consultas diretas nas tabelas
-- **Dashboards pré-configurados** para monitoramento de database
 
 ### Criação de Dashboards
 
