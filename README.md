@@ -6,7 +6,7 @@
 [![Version](https://img.shields.io/badge/version-2.1.0-brightgreen)](https://github.com/jpaullopes/sensorflow-server-ethernet)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Backend FastAPI para ingestão, persistência (InfluxDB v3), visualização (Grafana) e streaming em tempo real de dados de sensores via REST e WebSocket, compatível com WiFi e módulos Ethernet (W5500/W5100).
+Backend FastAPI para monitoramento de processos CIP (Clean-in-Place) com ingestão, persistência (InfluxDB v3) e streaming em tempo real de dados de temperatura, pressão e concentração via REST e WebSocket, compatível com WiFi e módulos Ethernet (W5500/W5100).
 
 ---
 
