@@ -1,4 +1,4 @@
-# SensorFlow Server
+# SensorFlow
 
 [![Python](https://img.shields.io/badge/Python-3.11+-green.svg)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.95+-blue)](https://fastapi.tiangolo.com/)
@@ -6,38 +6,36 @@
 [![Version](https://img.shields.io/badge/version-2.1.0-brightgreen)](https://github.com/jpaullopes/sensorflow-server-ethernet)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-**SensorFlow Server** é um projeto backend desenvolvido em Python/FastAPI para gerenciamento de dados de database em tempo real. Oferecendo uma persistência em InfluxDB, visualização via Grafana, e comunicação bidirecional via WebSockets.
-
-**Compatibilidade:** Este servidor funciona tanto com dispositivos conectados via **WiFi** quanto com **módulos Ethernet** (como W5500 ou W5100) sem necessidade de alterações no código.
+Backend FastAPI para monitoramento de processos CIP (Clean-in-Place) com ingestão, persistência (InfluxDB v3) e streaming em tempo real de dados de temperatura, pressão e concentração via REST e WebSocket, compatível com WiFi e módulos Ethernet (W5500/W5100).
 
 ---
 
-## 🌟 Funcionalidades
+## Funcionalidades
 
-### ✨ Core Features
-- **API REST Segura**: Endpoints protegidos por API Key para recepção de dados de database
-- **WebSocket em Tempo Real**: Distribuição instantânea de dados para clientes conectados
+### Core Features
+- **API REST Segura**: Endpoints protegidos por API Key para recepção de dados de monitoramento CIP
+- **WebSocket em Tempo Real**: Distribuição instantânea de dados CIP para clientes conectados
 - **InfluxDB v3**: Armazenamento de séries temporais com consultas SQL nativas
-- **Visualização com Grafana**: Dashboards personalizáveis para análise de dados
+- **Visualização com Grafana**: Dashboards personalizáveis para análise de processos CIP
 
-### 🏗️ Arquitetura Moderna
+### Arquitetura Moderna
 - **Clean Architecture**: Separação clara entre domínio, aplicação e infraestrutura
 - **Injeção de Dependências**: Desacoplamento entre componentes
 - **Configuração Externa**: Variáveis de ambiente para todas as configurações
 - **Logs Estruturados**: Sistema avançado com níveis e formatação colorida
 
-### 🔒 Segurança & Performance  
+### Segurança & Performance  
 - **Autenticação Dupla**: API Keys independentes para HTTP e WebSocket
 - **Limitação de Conexões**: Controle granular de conexões por API Key
 - **Validação de Dados**: Schemas Pydantic para validação automática
 - **SQL Injection Protection**: Consultas seguras via cliente oficial InfluxDB
 
-### 🚀 DevOps & Deployment
+### DevOps & Deployment
 - **Docker Compose**: Stack completa com orquestração de serviços
 - **Healthchecks**: Verificação automática de saúde dos containers
 - **Compatibilidade Ethernet**: Suporte nativo para módulos W5500 e W5100
 
-## 🛠️ Tecnologias
+## Tecnologias
 
 ### Backend & Framework
 - **Python**: 3.11+
@@ -66,14 +64,14 @@
 - **Pydantic Settings**: Gestão de configurações via env vars
 - **Logging**: Sistema de logs estruturado 
 
-## 🚀 Instalação
+## Instalação
 
 ### Pré-requisitos
 
 - [Docker](https://docs.docker.com/get-docker/) (v20.10+)
 - [Docker Compose](https://docs.docker.com/compose/install/) (v2.0+)
 
-### ⚡ Configuração Rápida
+### Configuração Rápida
 
 1. **Clone o repositório**
 
@@ -108,7 +106,7 @@ docker-compose logs -f api
 | **InfluxDB**| [http://localhost:8181](http://localhost:8181) | Token via env    |
 | **Grafana** | [http://localhost:3000](http://localhost:3000) | admin/admin123  |
 
-### 🔧 Comandos Úteis
+### Comandos Úteis
 
 ```bash
 # Rebuild apenas a API (após mudanças no código)
@@ -124,88 +122,28 @@ docker-compose down
 
 ```
 
-## 🛣️ API Endpoints
+## API Endpoints
 
-### 📡 Recepção de Dados de database
+### Recepção de Dados CIP
 
-**POST** `/api/v1/temperature_reading`
+**POST** `/api/v1/cip_monitoring` (campos: temperature, pressure, concentration, id_sensor, cip_id, status_cip)
 
-Endpoint principal para envio de dados de database, protegido por API Key.
-
-**Headers necessários:**
-- `X-API-Key`: Chave de autenticação para API
-- `Content-Type`: application/json
-
-**Payload:**
-```json
-{
-  "temperature": 25.5,      // Temperatura em Celsius
-  "humidity": 60.2,         // Umidade relativa (%)
-  "pressure": 1012.5,       // Pressão atmosférica (hPa)  
-  "sensor_id": "sensor_001" // ID único do sensor
-}
-```
-
-**Resposta (201 Created):**
-```json
-{
-  "id": 123,
-  "temperature": 25.5,
-  "humidity": 60.2,
-  "pressure": 1012.5,
-  "date_recorded": "2025-08-16",
-  "time_recorded": "14:30:45",
-  "sensor_id": "sensor_001",
-  "client_ip": "192.168.1.100"
-}
-```
-
-**Exemplo CURL:**
+Exemplo único (cURL):
 ```bash
-curl -X POST "http://localhost:8000/api/v1/temperature_reading" \
+curl -X POST "http://localhost:8000/api/v1/cip_monitoring" \
   -H "X-API-Key: sua_chave_http_secreta" \
   -H "Content-Type: application/json" \
   -d '{
-    "temperature": 25.5,
-    "humidity": 60.2, 
-    "pressure": 1012.5,
-    "sensor_id": "sensor_001"
+    "temperature": 75.5,
+    "pressure": 2.3,
+    "concentration": 0.8,
+    "id_sensor": "sensor_001",
+    "cip_id": "CIP_001",
+    "status_cip": "active"
   }'
 ```
 
-### 🏥 Health Monitoring
-
-**GET** `/api/v1/health`
-
-Endpoint completo de saúde da aplicação com informações detalhadas.
-
-**Resposta:**
-```json
-{
-  "status": "healthy",
-  "timestamp": "2025-08-16T15:30:45.123Z",
-  "version": "2.1.0",
-  "services": {
-    "influxdb": "connected",
-    "websocket_manager": "active"
-  },
-  "uptime_seconds": 3600
-}
-```
-
-**GET** `/api/v1/ping`
-
-Endpoint simples para verificação rápida (health check).
-
-**Resposta:**
-```json
-{
-  "status": "ok",
-  "message": "SensorFlow API is running"
-}
-```
-
-### 🔍 Consulta de Dados
+### Consulta de Dados
 
 **GET** `/api/v1/sensor/{sensor_id}/latest`
 
@@ -217,7 +155,7 @@ curl -H "X-API-Key: sua_chave" \
   "http://localhost:8000/api/v1/sensor/sensor_001/latest"
 ```
 
-### 🌐 WebSocket para Tempo Real
+### WebSocket para Tempo Real
 
 **WebSocket** `/ws/sensor_updates?api-key=sua_chave_websocket`
 
@@ -226,100 +164,78 @@ Conexão WebSocket para receber dados em tempo real conforme chegam na API.
 **Parâmetros de Query:**
 - `api-key`: Chave de autenticação para WebSocket (obrigatório)
 
-**Exemplo JavaScript:**
-```javascript
-const ws = new WebSocket('ws://localhost:8000/ws/sensor_updates?api-key=sua_chave_websocket');
-
-ws.onopen = function() {
-    console.log('🔌 Conectado ao WebSocket');
-};
-
-ws.onmessage = function(event) {
-    const data = JSON.parse(event.data);
-    console.log('📡 Novos dados:', data);
-    // Atualizar dashboard em tempo real
-};
-
-ws.onclose = function() {
-    console.log('🔌 Desconectado do WebSocket');
-};
-```
-
 **Dados recebidos em tempo real:**
 ```json
 {
-  "temperature": 25.5,
-  "humidity": 60.2, 
-  "pressure": 1012.5,
-  "sensor_id": "sensor_001",
+  "temperature": 75.5,
+  "pressure": 2.3,
+  "concentration": 0.8,
+  "id_sensor": "sensor_001",
+  "cip_id": "CIP_001",
+  "status_cip": "active",
   "timestamp": "2025-08-16T15:30:45.123Z"
 }
 ```
 
-## 🗄️ Consultas SQL - InfluxDB v3
+## Consultas SQL - InfluxDB v3
 
-Uma das principais vantagens desta versão é o suporte nativo a SQL no InfluxDB v3.
-
-Execute consultas SQL diretamente no container InfluxDB:
+Uma das principais vantagens desta versão é o suporte nativo a SQL no InfluxDB v3. Execute consultas SQL diretamente no container InfluxDB:
 
 ```bash
 # Listar 10 registros mais recentes
 docker-compose exec influxdb3-core influxdb3 query \
   --token "$INFLUX_TOKEN" \
   --database "database" \
-  "SELECT * FROM sensor_readings ORDER BY time DESC LIMIT 10"
+  "SELECT * FROM manitoramento_cip ORDER BY time DESC LIMIT 10"
 
 ```
 
-## 📊 Integração Grafana
+## Integração Grafana
 
-O SensorFlow Server implementa provisionamento automático do Grafana com InfluxDB v3 como fonte de dados, permitindo visualização imediata dos dados.
+O SensorFlow Server implementa provisionamento automático do Grafana com InfluxDB v3 como fonte de dados, permitindo visualização dos dados CIP.
 
-### 🔧 Provisionamento Automático
+### Provisionamento Automático
 
 O sistema configura automaticamente:
 
-- ✅ **Fonte de dados InfluxDB v3** pré-configurada
-- ✅ **Conexão segura** com token e database via variáveis de ambiente
-- ✅ **SQL Query Support** para consultas diretas nas tabelas
-- ✅ **Dashboards pré-configurados** para monitoramento de database
+- **Fonte de dados InfluxDB v3** pré-configurada
+- **Conexão segura** com token e database via variáveis de ambiente
+- **SQL Query Support** para consultas diretas nas tabelas
 
-### 🎨 Criação de Dashboards
+### Criação de Dashboards
 
 1. **Acesse o Grafana**: [http://localhost:3000](http://localhost:3000)
 2. **Login**: admin / admin123 (conforme configurado no .env)
 3. **Novo Dashboard**: "+" → "Dashboard" → "Add new panel"
 4. **Fonte de dados**: "InfluxDB v3 database" (pré-configurada)
 
-## 🛡️ Segurança
+## Segurança
 
 O SensorFlow Server implementa múltiplas camadas de segurança:
 
-### 🔐 Autenticação por API Key
+### Autenticação por API Key
 - **Chaves Independentes**: Separação entre HTTP (`API_KEY`) e WebSocket (`API_KEY_WS`)
 - **Headers Seguros**: Autenticação via `X-API-Key` header
 - **Validação Automática**: Middleware de autenticação em todos os endpoints protegidos
 
-### 🚧 Controle de Acesso
+### Controle de Acesso
 - **Limitação de Conexões**: Máximo configurável de conexões WebSocket por API Key
 - **Validação de Origem**: Tracking de IP do cliente para auditoria
 - **Sanitização de Inputs**: Validação automática via schemas Pydantic
 
-### 🔒 Proteções Implementadas
+### Proteções Implementadas
 - **SQL Injection**: Consultas preparadas via cliente oficial InfluxDB
 - **CORS**: Configuração de Cross-Origin Resource Sharing
 - **Rate Limiting**: Prevenção de abuso de endpoints
 - **Logs de Auditoria**: Rastreamento detalhado de todas as operações
 
-## 📈 Monitoramento
+## Monitoramento
 
-### 🏥 Health Endpoints
+### Health Endpoints
+- **GET** `/api/v1/health` – Retorna status completo da aplicação.
+- **GET** `/api/v1/ping` – Verificação rápida de saúde.
 
-- **`GET /api/v1/health`**: Status completo da aplicação
-- **`GET /api/v1/ping`**: Verificação rápida de saúde
-
-### 📊 Logs de Aplicação
-
+### Logs e Alertas
 ```bash
 # Logs em tempo real
 docker-compose logs -f api
@@ -331,25 +247,15 @@ docker-compose logs grafana         # Grafana
 # Filtrar por nível de log
 docker-compose logs api | grep ERROR
 docker-compose logs api | grep INFO
-```
 
-### 🚨 Alertas e Monitoramento
-
-**Via Logs:**
-```bash
-# Monitorar erros críticos
+# Monitorar erros críticos e conexões WebSocket:
 docker-compose logs api | grep "ERROR\|CRITICAL"
-
-# Monitorar conexões WebSocket
 docker-compose logs api | grep "WebSocket"
-
-# Monitorar ingestão de dados
-docker-compose logs api | grep "temperature_reading"
 ```
 
-## 🧑‍💻 Desenvolvimento
+## Desenvolvimento
 
-### 🔧 Desenvolvimento Local
+### Desenvolvimento Local
 
 #### Configurar Ambiente de Desenvolvimento:
 
@@ -384,7 +290,7 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 docker-compose up -d
 ```
 
-### 🔍 Debug e Troubleshooting
+### Debug e Troubleshooting
 
 ```bash
 # Logs detalhados da aplicação
@@ -394,28 +300,25 @@ docker-compose logs -f api
 curl -H "X-API-Key: sua_chave" http://localhost:8000/api/v1/health
 ```
 
-## 🌐 Serviços
+## Serviços
 
 | Serviço       | Porta | Descrição                        | URL Local                        | Status |
 |---------------|-------|----------------------------------|----------------------------------|---------|
-| **🚀 API**    | 8000  | Backend FastAPI com Clean Arch   | http://localhost:8000           | ✅ Ativo |
-| **📊 Docs**   | 8000  | Documentação Swagger/ReDoc       | http://localhost:8000/docs      | ✅ Ativo |
-| **🗄️ InfluxDB** | 8181 | Banco de séries temporais v3    | http://localhost:8181           | ✅ Ativo |
-| **📈 Grafana** | 3000 | Dashboards e visualização       | http://localhost:3000           | ✅ Ativo |
-| **🌐 WebSocket** | 8000 | Real-time data streaming       | ws://localhost:8000/ws/sensor_updates | ✅ Ativo |
+| **API**    | 8000  | Backend FastAPI com Clean Arch   | http://localhost:8000           | Ativo |
+| **Docs**   | 8000  | Documentação Swagger/ReDoc       | http://localhost:8000/docs      | Ativo |
+| **InfluxDB** | 8181 | Banco de séries temporais v3    | http://localhost:8181           | Ativo |
+| **Grafana** | 3000 | Dashboards e visualização       | http://localhost:3000           | Ativo |
+| **WebSocket** | 8000 | Real-time data streaming       | ws://localhost:8000/ws/sensor_updates | Ativo |
 
-### 🔗 URLs Importantes
+### URLs Importantes
 
-- **📖 API Docs**: [http://localhost:8000/docs](http://localhost:8000/docs) - Interface Swagger
-- **🔍 ReDoc**: [http://localhost:8000/redoc](http://localhost:8000/redoc) - Documentação alternativa  
-- **🏥 Health**: [http://localhost:8000/api/v1/health](http://localhost:8000/api/v1/health) - Status da aplicação
-- **📊 Grafana**: [http://localhost:3000](http://localhost:3000) - admin/admin123
+- **API Docs**: [http://localhost:8000/docs](http://localhost:8000/docs) - Interface Swagger
+- **ReDoc**: [http://localhost:8000/redoc](http://localhost:8000/redoc) - Documentação alternativa  
+- **Health**: [http://localhost:8000/api/v1/health](http://localhost:8000/api/v1/health) - Status da aplicação
+- **Grafana**: [http://localhost:3000](http://localhost:3000) - admin/admin123
 
 ---
 
-## 📄 Licença
+## Licença
 
-Este projeto está licenciado sob os termos da **licença MIT** - veja o arquivo [LICENSE](LICENSE) para detalhes.
-
-
-
+Este projeto está licenciado sob os termos da **licença MIT**, veja o arquivo [LICENSE](LICENSE) para detalhes.
