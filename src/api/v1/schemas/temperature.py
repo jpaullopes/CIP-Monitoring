@@ -28,9 +28,11 @@ class CipDataResponse(BaseModel):
 class TemperatureDataResponse(BaseModel):
     id: Optional[str] = None
     temperature: float
-    humidity: float
     pressure: float
+    concentration: float
     date_recorded: date_type
     time_recorded: time_type
-    sensor_id: str
+    id_sensor: str
+    cip_id: str
+    status_cip: str
     client_ip: Optional[str] = None
