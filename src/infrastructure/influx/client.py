@@ -37,26 +37,28 @@ def initialize_influx():
 def get_client() -> InfluxDBClient3 | None:
     return _client if app_state.influx_is_connected else None
 
-def write_sensor_data(temperature: float, humidity: float, pressure: float, sensor_id: str, client_ip: str | None):
+def write_cip_data(temperature: float, pressure: float, concentration: float, id_sensor: str, cip_id: str, status_cip: str, client_ip: str | None):
     if not app_state.influx_is_connected or _client is None:
         logger.warning("InfluxDB v3 unavailable, skipping write.")
         return False
     try:
         point = (
-            Point("sensor_readings")
-            .tag("sensor_id", sensor_id)
+            Point("manitoramento_cip")
+            .tag("local", id_sensor)
+            .tag("cip_id", cip_id)
+            .tag("status_cip", status_cip)
             .tag("client_ip", client_ip or "unknown")
             .field("temperature", float(temperature))
-            .field("humidity", float(humidity))
             .field("pressure", float(pressure))
+            .field("concentration", float(concentration))
             .time(datetime.now(timezone.utc))
         )
         _client.write(record=point)
-        logger.info(f"Data written to InfluxDB v3: sensor={sensor_id}, temp={temperature}")
+        logger.info(f"CIP data written to InfluxDB v3: sensor={id_sensor}, cip_id={cip_id}, temp={temperature}")
         return True
         
     except Exception as e:
-        logger.error(f"InfluxDB v3 write failed: {e}")
+        logger.error(f"InfluxDB v3 CIP write failed: {e}")
         app_state.influx_is_connected = False
         return False
 

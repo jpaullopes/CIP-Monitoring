@@ -3,8 +3,8 @@ from datetime import datetime
 import pytz
 import uuid
 
-from src.api.v1.schemas.temperature import TemperatureReadingPayload, TemperatureDataResponse
-from src.infrastructure.influx.client import write_sensor_data
+from src.api.v1.schemas.temperature import TemperatureReadingPayload, CipDataResponse
+from src.infrastructure.influx.client import write_cip_data
 from src.infrastructure.config.settings import app_state, settings
 from src.infrastructure.security.api_key import verify_api_key
 from src.infrastructure.websocket.manager import manager
@@ -15,7 +15,7 @@ logger = get_logger(__name__)
 
 @router.post(
     "/temperature_reading",
-    response_model=TemperatureDataResponse,
+    response_model=CipDataResponse,
     status_code=status.HTTP_201_CREATED,
     dependencies=[Depends(verify_api_key)]
 )
@@ -24,7 +24,7 @@ async def submit_temperature_reading_http(
     request: Request
 ):
     client_ip = request.client.host if request.client else "unknown_ip"
-    sensor_id = payload.sensor_id
+    id_sensor = payload.id_sensor
 
     utc_now = datetime.utcnow()
     brasilia_tz = pytz.timezone('America/Sao_Paulo')
@@ -32,28 +32,32 @@ async def submit_temperature_reading_http(
     date_to_store = brasilia_now.date()
     time_to_store = brasilia_now.time().replace(microsecond=0)
 
-    logger.info(f"HTTP: sensor={sensor_id} temp={payload.temperature} hum={payload.humidity} press={payload.pressure}")
+    logger.info(f"HTTP CIP: sensor={id_sensor} cip_id={payload.cip_id} temp={payload.temperature} press={payload.pressure} conc={payload.concentration}")
 
     record_id = None
     if app_state.influx_is_connected:
-        ok = write_sensor_data(
+        ok = write_cip_data(
             temperature=payload.temperature,
-            humidity=payload.humidity,
             pressure=payload.pressure,
-            sensor_id=sensor_id,
+            concentration=payload.concentration,
+            id_sensor=id_sensor,
+            cip_id=payload.cip_id,
+            status_cip=payload.status_cip,
             client_ip=client_ip
         )
         if ok:
             record_id = str(uuid.uuid4())
 
-    data_to_broadcast = TemperatureDataResponse(
+    data_to_broadcast = CipDataResponse(
         id=record_id,
         temperature=payload.temperature,
-        humidity=payload.humidity,
         pressure=payload.pressure,
+        concentration=payload.concentration,
         date_recorded=date_to_store,
         time_recorded=time_to_store,
-        sensor_id=sensor_id,
+        id_sensor=id_sensor,
+        cip_id=payload.cip_id,
+        status_cip=payload.status_cip,
         client_ip=client_ip
     )
 
