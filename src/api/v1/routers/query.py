@@ -27,9 +27,9 @@ async def execute_sql_query(request: SQLQueryRequest):
     Executa consulta SQL diretamente no InfluxDB v3.
     
     Exemplos de consultas:
-    - SELECT * FROM sensor_readings WHERE time > now() - interval '1 hour'
-    - SELECT sensor_id, AVG(temperature) FROM sensor_readings GROUP BY sensor_id
-    - SELECT * FROM sensor_readings WHERE sensor_id = 'sensor-001' ORDER BY time DESC LIMIT 10
+    - SELECT * FROM manitoramento_cip WHERE time > now() - interval '1 hour'
+    - SELECT cip_id, AVG(temperature) FROM manitoramento_cip GROUP BY cip_id
+    - SELECT * FROM manitoramento_cip WHERE local = 'estacao_cip' ORDER BY time DESC LIMIT 10
     """
     logger.info(f"Executing SQL query: {request.query}")
     
@@ -81,17 +81,18 @@ async def execute_sql_query(request: SQLQueryRequest):
 )
 async def get_recent_sensor_data(limit: int = 50):
     """
-    Busca os dados de database mais recentes (últimas 24 horas).
+    Busca os dados CIP mais recentes (últimas 24 horas).
     """
     sql_query = f"""
     SELECT 
         time,
-        sensor_id,
-        client_ip,
+        local,
+        cip_id,
+        status_cip,
         temperature,
-        humidity,
-        pressure
-    FROM sensor_readings 
+        pressure,
+        concentration
+    FROM manitoramento_cip 
     WHERE time > now() - interval '24 hours'
     ORDER BY time DESC 
     LIMIT {limit}
@@ -107,17 +108,18 @@ async def get_recent_sensor_data(limit: int = 50):
 )
 async def get_sensor_latest_data(sensor_id: str, limit: int = 10):
     """
-    Busca os dados mais recentes de um sensor específico.
+    Busca os dados mais recentes de um sensor CIP específico.
     """
     sql_query = f"""
     SELECT 
         time,
+        cip_id,
+        status_cip,
         temperature,
-        humidity,
         pressure,
-        client_ip
-    FROM sensor_readings 
-    WHERE sensor_id = '{sensor_id}'
+        concentration
+    FROM manitoramento_cip 
+    WHERE local = '{sensor_id}'
     ORDER BY time DESC 
     LIMIT {limit}
     """
