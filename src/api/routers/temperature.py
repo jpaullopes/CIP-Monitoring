@@ -23,7 +23,7 @@ CIP_TIMEOUT_MINUTES = 10
     "/sensor_data",
     response_model=SensorDataResponse,
     status_code=status.HTTP_201_CREATED,
-    dependencies=[Depends(verify_api_key)]
+    #dependencies=[Depends(verify_api_key)]
 )
 async def submit_sensor_data(
     payload: SensorDataPayload,
