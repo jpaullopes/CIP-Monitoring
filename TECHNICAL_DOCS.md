@@ -47,8 +47,8 @@ src/
 **`SensorDataResponse(BaseModel)`**
 - **Responsabilidade**: Formato de resposta padronizado.
 - **Campos**:
-  - `pressure: float`
   - `temperature: float`
+  - `pressure: float`
   - `concentration: float`
   - `flow: float`
   - `timestamp: datetime`
