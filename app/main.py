@@ -3,7 +3,7 @@ from app.lifecycle import on_startup, on_shutdown
 from src.api.routers import api_router
 from src.api.routers.websocket import router as ws_router
 
-app = FastAPI(title="Resilient Sensor API - InfluxDB Edition", version="2.1.0")
+app = FastAPI(title="Resilient Sensor API - Node-RED Edition", version="2.1.0")
 
 @app.on_event("startup")
 async def startup_event():

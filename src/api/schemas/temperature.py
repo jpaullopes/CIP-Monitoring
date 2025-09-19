@@ -3,8 +3,8 @@ from datetime import datetime
 from typing import Optional
 
 class SensorDataPayload(BaseModel):
-    pressure: float
     temperature: float
+    pressure: float
     concentration: float
     flow: float
 
