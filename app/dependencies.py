@@ -1,3 +1,4 @@
-from src.infrastructure.influx.client import get_client
+# Arquivo de dependências simplificado
+# Sem dependências externas por enquanto
 
-__all__ = ["get_client"]
+__all__ = []
