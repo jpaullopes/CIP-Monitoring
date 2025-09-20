@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 import pytz
 
 from src.api.schemas.temperature import SensorDataPayload, SensorDataResponse
-from src.infrastructure.config.settings import app_state, settings
+from src.infrastructure.config.settings import get_settings
 from src.infrastructure.security.api_key import verify_api_key
 from src.infrastructure.websocket.manager import manager
 from src.infrastructure.logging.config import get_logger
