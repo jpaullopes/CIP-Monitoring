@@ -232,12 +232,7 @@ Connection Manager
 **`Settings(BaseSettings)`**
 - **Responsabilidade**: Carrega e valida configurações de ambiente.
 - **Campos**:
-  - `API_KEY`, `API_KEY_WS`, `INFLUX_HOST`, `INFLUX_PORT`, `INFLUX_TOKEN`, `INFLUX_DATABASE`, `MAX_WS_CONNECTIONS_PER_KEY`.
-
-**`AppState`**
-- **Responsabilidade**: Estado global da aplicação em runtime.
-- **Campos**:
-  - `influx_is_connected`.
+  - `API_KEY`, `API_KEY_WS`, `MAX_WS_CONNECTIONS_PER_KEY`.
 
 #### Funções
 
