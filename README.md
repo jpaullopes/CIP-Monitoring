@@ -16,29 +16,12 @@ Backend FastAPI para monitoramento de processos CIP (Clean-in-Place) com streami
 - **WebSocket em Tempo Real**: Distribuição instantânea de dados CIP para clientes conectados
 - **Armazenamento em Memória**: Dados mais recentes mantidos em memória para consulta rápida
 
-### Arquitetura Moderna
-- **Clean Architecture**: Separação clara entre domínio, aplicação e infraestrutura
-- **Injeção de Dependências**: Desacoplamento entre componentes
-- **Configuração Externa**: Variáveis de ambiente para todas as configurações
-- **Logs Estruturados**: Sistema avançado com níveis e formatação colorida
-
-### Segurança & Performance  
-- **Autenticação Dupla**: API Keys independentes para HTTP e WebSocket
-- **Limitação de Conexões**: Controle granular de conexões por API Key
-- **Validação de Dados**: Schemas Pydantic para validação automática
-
-### DevOps & Deployment
-- **Docker Compose**: Stack simplificada com orquestração de serviços
-- **Healthchecks**: Verificação automática de saúde dos containers
-- **Compatibilidade Ethernet**: Suporte nativo para módulos W5500 e W5100
-
 ## Tecnologias
 
 ### Backend & Framework
 - **Python**: 3.11+
 - **FastAPI**: Framework moderno e rápido com documentação automática
 - **Uvicorn**: Servidor ASGI de alta performance
-- **Pydantic**: Validação de dados e serialização
 
 ### Comunicação & Real-time
 - **WebSocket**: Streaming bidirecional para dados em tempo real
@@ -48,9 +31,6 @@ Backend FastAPI para monitoramento de processos CIP (Clean-in-Place) com streami
 - **Docker**: Containerização da aplicação
 - **Docker Compose**: Orquestração simplificada de serviços
 
-### Observabilidade & Logging
-- **ColorLog**: Logs coloridos e estruturados
-- **FastAPI Logging**: Integração nativa para traces de requisições
 
 ---
 
@@ -140,21 +120,6 @@ Verifica a saúde da API.
 curl -X GET "http://localhost:8000/health"
 ```
 
-### WebSocket para Dados em Tempo Real
-
-**WebSocket** `/sensor_updates?api-key=sua_chave_ws`
-
-Conecta via WebSocket para receber dados em tempo real conforme são enviados pelos sensores.
-
-```javascript
-const ws = new WebSocket('ws://localhost:8000/sensor_updates?api-key=sua_chave_ws');
-
-ws.onmessage = function(event) {
-    const data = JSON.parse(event.data);
-    console.log('Dados recebidos:', data);
-};
-```
-
 ## Configuração
 
 ### Variáveis de Ambiente
@@ -226,23 +191,10 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
 ### Logs
 
-A aplicação possui logs estruturados com diferentes níveis:
-
 ```bash
 # Visualizar logs em tempo real
 docker-compose logs -f api
 ```
-
-## Hardware Compatível
-
-### Módulos Ethernet Suportados
-- **W5500**: Módulo Ethernet com SPI
-- **W5100**: Módulo Ethernet básico
-- **ESP32 com Ethernet**: Placas com PHY integrado
-
-### Microcontroladores Testados
-- **ESP32**: WiFi e Ethernet
-- **Arduino**: Com módulos Ethernet W5100/W5500
 
 ## Licença
 
