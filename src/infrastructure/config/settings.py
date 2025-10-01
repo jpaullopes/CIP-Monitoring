@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings
 from functools import lru_cache
 
 class Settings(BaseSettings):
-    API_KEY: str | None = None
+    api_key: str | None = None
     API_KEY_WS: str | None = None
     MAX_WS_CONNECTIONS_PER_KEY: int = 0
 

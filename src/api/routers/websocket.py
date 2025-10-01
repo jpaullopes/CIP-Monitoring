@@ -10,7 +10,7 @@ router = APIRouter()
 @router.websocket("/sensor_updates")
 async def websocket_sensor_updates_endpoint(
     websocket: WebSocket,
-    api_key: str = Query(..., alias="api-key")
+    api_key: str = Query(..., alias="API_KEY")
 ):
     if not await verify_ws_api_key(api_key):
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION, reason="Invalid or missing API Key.")
