@@ -47,11 +47,10 @@ async def submit_sensor_data(
     # Atualiza o timestamp do último dado
     last_data_timestamp = brasilia_now
 
-    logger.info(f"Sensor data received: temp={payload.temperature} press={payload.pressure} conc={payload.concentration} flow={payload.flow} cip_id={current_cip_id}")
+    logger.info(f"Sensor data received: temp={payload.temperature} conc={payload.concentration} flow={payload.flow} cip_id={current_cip_id}")
 
     data_to_broadcast = SensorDataResponse(
         temperature=payload.temperature,
-        pressure=payload.pressure,
         concentration=payload.concentration,
         flow=payload.flow,
         timestamp=brasilia_now,
@@ -75,7 +74,6 @@ async def get_latest_sensor_data():
         # Retorna dados padrão se ainda não há dados disponíveis
         return SensorDataResponse(
             temperature=0.0,
-            pressure=0.0,
             concentration=0.0,
             flow=0.0,
             timestamp=datetime.now(pytz.timezone('America/Sao_Paulo')),

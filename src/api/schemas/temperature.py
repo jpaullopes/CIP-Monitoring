@@ -4,12 +4,10 @@ from typing import Optional
 
 class SensorDataPayload(BaseModel):
     temperature: float
-    pressure: float
     concentration: float
     flow: float
 
 class SensorDataResponse(BaseModel):
-    pressure: float
     temperature: float
     concentration: float
     flow: float

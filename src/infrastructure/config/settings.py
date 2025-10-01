@@ -3,12 +3,10 @@ from functools import lru_cache
 
 class Settings(BaseSettings):
     api_key: str | None = None
-    API_KEY_WS: str | None = None
-    MAX_WS_CONNECTIONS_PER_KEY: int = 0
 
     class Config:
         env_file = ".env"
-        case_sensitive = True
+        case_sensitive = False
 
 @lru_cache
 def get_settings():
