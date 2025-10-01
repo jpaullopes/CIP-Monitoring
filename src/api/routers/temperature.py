@@ -30,6 +30,7 @@ async def submit_sensor_data(
     request: Request
 ):
     """Endpoint para a placa enviar dados dos sensores"""
+    print(payload.model_dump_json(indent=4))
     global latest_sensor_data, current_cip_id, last_data_timestamp
     
     utc_now = datetime.now(timezone.utc)
