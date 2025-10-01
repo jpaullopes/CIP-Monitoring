@@ -94,7 +94,6 @@ curl -X POST "http://localhost:8000/sensor_data" \
   -H "Content-Type: application/json" \
   -d '{
     "temperature": 75.5,
-    "pressure": 2.3,
     "concentration": 0.8,
     "flow": 1.2
   }'
@@ -139,7 +138,6 @@ MAX_WS_CONNECTIONS_PER_KEY=10
 ```json
 {
   "temperature": 75.5,
-  "pressure": 2.3,
   "concentration": 0.8,
   "flow": 1.2
 }
@@ -149,7 +147,6 @@ MAX_WS_CONNECTIONS_PER_KEY=10
 ```json
 {
   "temperature": 75.5,
-  "pressure": 2.3,
   "concentration": 0.8,
   "flow": 1.2,
   "timestamp": "2024-01-15T10:30:00-03:00",

@@ -31,14 +31,12 @@ src/
 **`SensorDataPayload(BaseModel)`**
 - **Responsabilidade**: Validação de dados de entrada da placa.
 - **Campos**:
-  - `pressure: float`
   - `temperature: float`
   - `concentration: float`
   - `flow: float`
 - **Código**:
   ```python
   class SensorDataPayload(BaseModel):
-      pressure: float
       temperature: float
       concentration: float
       flow: float
@@ -48,7 +46,6 @@ src/
 - **Responsabilidade**: Formato de resposta padronizado.
 - **Campos**:
   - `temperature: float`
-  - `pressure: float`
   - `concentration: float`
   - `flow: float`
   - `timestamp: datetime`
@@ -56,7 +53,6 @@ src/
 - **Código**:
   ```python
   class SensorDataResponse(BaseModel):
-      pressure: float
       temperature: float
       concentration: float
       flow: float
