@@ -1,4 +1,5 @@
-import logging, colorlog
+import logging
+import colorlog
 
 FORMAT = "% (log_color)s%(levelname)s%(reset)s - %(name)s - %(message)s".replace(" ", "")
 
