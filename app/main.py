@@ -1,17 +1,22 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from app.lifecycle import on_startup, on_shutdown
 from src.api.routers import api_router
-from src.api.routers.websocket import router as ws_router
 
-app = FastAPI(title="Resilient Sensor API - Node-RED Edition", version="2.1.0")
 
-@app.on_event("startup")
-async def startup_event():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
     await on_startup()
-
-@app.on_event("shutdown")
-async def shutdown_event():
+    yield
+    # Shutdown
     await on_shutdown()
 
+
+app = FastAPI(
+    title="CIP data collect API", 
+    version="3.5",
+    lifespan=lifespan
+)
+
 app.include_router(api_router)
-app.include_router(ws_router, prefix="/ws")

@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 from datetime import datetime
-from typing import Optional
 
 class SensorDataPayload(BaseModel):
     temperature: float
@@ -13,3 +12,4 @@ class SensorDataResponse(BaseModel):
     flow: float
     timestamp: datetime
     cip_id: int
+    active: bool
