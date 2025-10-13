@@ -49,9 +49,23 @@ class SensorDataService:
     
     async def get_latest_sensor_data(self) -> SensorDataResponse:
         """Get the latest sensor data or default values."""
+        # Check timeout and update status WITHOUT incrementing CIP ID
+        is_active = self._cip_service.check_active_status()
+        current_cip_id = self._cip_service.get_current_cip_id()
+        
+        # Save updated state if status changed
+        await self._persistence_service.save_state(
+            cip_id=current_cip_id,
+            active=is_active,
+            timestamp=datetime.now(self._brasilia_tz).isoformat()
+        )
+        
         latest_data = await self._repository.get_latest()
         
         if latest_data is not None:
+            # Update the active status in the latest data
+            latest_data.active = is_active
+            latest_data.cip_id = current_cip_id
             return latest_data
         
         # Return default data if no data available
@@ -73,8 +87,9 @@ class SensorDataService:
     def _create_default_response(self) -> SensorDataResponse:
         """Create a default sensor data response."""
         brasilia_now = datetime.now(self._brasilia_tz)
+        # Check timeout and update status WITHOUT incrementing CIP ID
+        is_active = self._cip_service.check_active_status()
         current_cip_id = self._cip_service.get_current_cip_id()
-        is_active = self._cip_service.get_active_status()
         
         return SensorDataResponse(
             temperature=0.0,
