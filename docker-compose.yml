@@ -16,8 +16,12 @@ services:
     volumes:
       # Volume para dados persistentes (antifalha)
       - ./data:/app/data
+      # Volume para logs de segurança
+      - ./logs:/app/logs
+      # Volume para logs de segurança
+      - ./logs:/app/logs
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/api/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
