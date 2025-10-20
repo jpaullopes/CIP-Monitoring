@@ -27,6 +27,9 @@ class SecuritySettings(BaseSettings):
     ENVIRONMENT: str = "production"
     API_KEY: str | None = None
     
+    # Configurações de IP filtering
+    ALLOWED_POST_IPS: str = "127.0.0.1,10.28.82.177,localhost"
+    
     class Config:
         env_file = ".env"
         case_sensitive = True
