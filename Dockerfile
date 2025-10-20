@@ -23,10 +23,11 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Copiar código da aplicação
 COPY app/ ./app/
 COPY src/ ./src/
+COPY main.py ./
 
-# Criar usuário não-root para segurança
+# Criar usuário não-root e diretórios necessários para segurança
 RUN useradd --create-home --shell /bin/bash app && \
-    mkdir -p /app/data && \
+    mkdir -p /app/data /app/logs && \
     chown -R app:app /app
 USER app
 
@@ -35,7 +36,7 @@ EXPOSE 8000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
+    CMD curl -f http://localhost:8000/api/health || exit 1
 
 # Comando para executar a aplicação
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]

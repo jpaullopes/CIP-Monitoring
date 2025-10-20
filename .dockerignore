@@ -18,6 +18,24 @@ pip-delete-this-directory.txt
 nosetests.xml
 coverage.xml
 *.cover
+
+# Development tools
+venv/
+.env.example
+README.md
+LICENSE
+generate_token.py
+manage_tokens.py
+device_tokens.json
+
+# Logs
+logs/
+*.log
+
+# Node.js (if any remains)
+node_modules/
+package-lock.json
+*.json.bak
 *.log
 .mypy_cache
 .pytest_cache

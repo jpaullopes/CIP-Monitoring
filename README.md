@@ -10,6 +10,10 @@ Esta API coleta dados de **temperatura**, **concentração** e **fluxo** de proc
 - Mantém o último dado recebido em memória para consulta rápida
 - Indica se o processo está ativo ou não (campo `active`)
 - Persiste o estado em arquivo para não perder dados se o sistema cair
+- **Autenticação JWT**: Protege endpoints com tokens JWT
+- **Rate Limiting**: Limite de 20 requisições/minuto por dispositivo
+- **Validação de Payload**: 3 níveis de proteção contra buffer overflow
+- **Logging Estruturado**: Logs JSON com rastreamento de eventos
 
 ## Como usar
 
@@ -38,19 +42,75 @@ docker-compose up -d
 
 | Serviço    | URL                                        | Credenciais      |
 |------------|--------------------------------------------|------------------|
-| **API**    | [http://localhost:8000](http://localhost:8000) | API Key via header |
+| **API**    | [http://localhost:8000](http://localhost:8000) | JWT Bearer Token |
+
+
+## Segurança
+
+### Autenticação JWT
+
+Todos os endpoints de escrita (`POST`) requerem autenticação via JWT Bearer Token.
+
+**1. Obter Token (POST `/api/token`)**
+
+```bash
+curl -X POST "http://localhost:8000/api/token" \
+  -H "Content-Type: application/json" \
+  -d '{"device_id": "sensor_001"}'
+```
+
+**Resposta:**
+```json
+{
+  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+  "token_type": "bearer"
+}
+```
+
+**2. Usar Token em Requisições**
+
+```bash
+curl -X POST "http://localhost:8000/api/sensor_data" \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{"temperature": 75.5, "concentration": 0.8, "flow": 1.2}'
+```
+
+### Rate Limiting
+
+- **Limite**: 20 requisições por minuto por dispositivo
+- **Resposta ao exceder**: HTTP 429 com header `Retry-After`
+- **Rastreamento**: Por device_id extraído do token JWT
+
+### Proteção contra Buffer Overflow
+
+3 níveis de validação:
+1. **FastAPI**: Máximo 10 MB por requisição
+2. **Middleware**: Validação customizada de tamanho
+3. **Schema Pydantic**: Validação por campo (máx 1 KB)
+
+### Logging Estruturado
+
+- **Formato**: JSON estruturado com timestamp
+- **Eventos**: Autenticação, rate limit, erros de validação
+- **Proteção**: Sensores nunca são logados em produção
+- **Armazenamento**: Rotação automática de logs (100 MB)
 
 
 ## API Endpoints
+
 
 ### Recepção de Dados dos Sensores
 
 **POST** `/api/sensor_data`
 
-Envia dados dos sensores CIP para o sistema. O sistema gerencia automaticamente o CIP ID e detecta quando processos terminam.
+Envia dados dos sensores CIP para o sistema. Requer autenticação JWT. O sistema gerencia automaticamente o CIP ID e detecta quando processos terminam.
+
+**Requer:** `Authorization: Bearer <token>`
 
 ```bash
 curl -X POST "http://localhost:8000/api/sensor_data" \
+  -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..." \
   -H "Content-Type: application/json" \
   -d '{
     "temperature": 75.5,
@@ -58,6 +118,12 @@ curl -X POST "http://localhost:8000/api/sensor_data" \
     "flow": 1.2
   }'
 ```
+
+**Respostas:**
+- `201 Created`: Dados processados com sucesso
+- `401 Unauthorized`: Token ausente ou inválido
+- `429 Too Many Requests`: Limite de requisições excedido
+- `413 Payload Too Large`: Tamanho da requisição excede 10 MB
 
 ### Consulta de Dados Mais Recentes
 
