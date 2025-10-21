@@ -25,7 +25,7 @@ class SensorDataService:
         """Process incoming sensor data and return response."""
         logger.info(
             f"Sensor data received: temp={payload.temperature} "
-            f"conc={payload.concentration} flow={payload.flow}"
+            f"cond={payload.conductivity} flow={payload.flow}"
         )
         
         # Update CIP ID and get active status based on timeout logic
@@ -77,7 +77,7 @@ class SensorDataService:
         
         return SensorDataResponse(
             temperature=payload.temperature,
-            concentration=payload.concentration,
+            conductivity=payload.conductivity,
             flow=payload.flow,
             timestamp=brasilia_now,
             cip_id=cip_id,
@@ -93,7 +93,7 @@ class SensorDataService:
         
         return SensorDataResponse(
             temperature=0.0,
-            concentration=0.0,
+            conductivity=0.0,
             flow=0.0,
             timestamp=brasilia_now,
             cip_id=current_cip_id,
