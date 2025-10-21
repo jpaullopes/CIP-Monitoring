@@ -8,8 +8,8 @@ class SecuritySettings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRATION_HOURS: int = 0
     
-    RATE_LIMIT_REQUESTS_PER_MINUTE: int = 20
-    RATE_LIMIT_REQUESTS_PER_HOUR: int = 1000
+    RATE_LIMIT_REQUESTS_PER_MINUTE: int = 80
+    RATE_LIMIT_REQUESTS_PER_HOUR: int = 4000
     RATE_LIMIT_WINDOW_MINUTES: int = 1
     
     MAX_REQUEST_BODY_SIZE: int = 10485760
@@ -28,7 +28,7 @@ class SecuritySettings(BaseSettings):
     API_KEY: str | None = None
     
     # Configurações de IP filtering
-    ALLOWED_POST_IPS: str = "127.0.0.1,10.28.82.177,localhost"
+    ALLOWED_POST_IPS: str = ""
     
     class Config:
         env_file = ".env"
