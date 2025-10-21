@@ -23,10 +23,10 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# IPs permitidos (pega das configurações)
+# IPs permitidos 
 allowed_ips = [ip.strip() for ip in settings.ALLOWED_POST_IPS.split(",")]
 
-# Middleware de filtro de IP (primeiro - mais restritivo)
+# Middleware de filtro de IP 
 app.add_middleware(IPFilterMiddleware, allowed_ips=allowed_ips)
 
 # Middleware CORS para permitir requisições de outros domínios
