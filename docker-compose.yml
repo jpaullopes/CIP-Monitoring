@@ -1,19 +1,35 @@
 version: '3.8'
 
 services:
-  # SERVIÇO DA API
-  api:
-    build: .
+  # SERVIÇO DA API SENSORFLOW
+  sensorflow-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sensorflow-api:latest
     container_name: sensorflow-api
-    restart: always
+    restart: unless-stopped
     env_file:
       - .env
-    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
     ports:
       - "8000:8000"
+    volumes:
+      # Volume para dados persistentes (antifalha)
+      - ./data:/app/data
+      # Volume para logs de segurança
+      - ./logs:/app/logs
+      # Volume para logs de segurança
+      - ./logs:/app/logs
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8000/docs || exit 1"]
-      interval: 15s
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/api/health || exit 1"]
+      interval: 30s
       timeout: 10s
-      retries: 5
-      start_period: 45s
+      retries: 3
+      start_period: 30s
+    networks:
+      - sensorflow-network
+
+networks:
+  sensorflow-network:
+    driver: bridge
+    name: sensorflow-net

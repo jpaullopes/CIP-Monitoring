@@ -42,6 +42,20 @@ class CipIdManager:
         """Get the current active status."""
         return self._active
     
+    def check_active_status(self) -> bool:
+        """Check if CIP should be active based on timeout, without updating CIP ID."""
+        if self._last_data_timestamp is None:
+            return True 
+        
+        current_time = self._get_brasilia_now()
+        time_diff = current_time - self._last_data_timestamp
+        if time_diff > timedelta(minutes=self._timeout_minutes):
+            self._active = False
+        else:
+            self._active = True
+            
+        return self._active
+    
     def restore_state(self, cip_id: int, active: bool, last_update: str) -> None:
         """Restore CIP state from persistent storage."""
         self._current_cip_id = cip_id
