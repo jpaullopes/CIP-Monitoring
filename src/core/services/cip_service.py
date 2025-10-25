@@ -9,7 +9,7 @@ logger = get_logger(__name__)
 class CipIdManager:
     """Service responsible for managing CIP ID logic."""
     
-    def __init__(self, timeout_minutes: int = 10):
+    def __init__(self, timeout_minutes: int = 15):
         self._current_cip_id: int = 1
         self._last_data_timestamp: Optional[datetime] = None
         self._timeout_minutes = timeout_minutes

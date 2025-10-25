@@ -17,7 +17,7 @@ class ServiceFactory:
     def get_cip_service(self) -> CipIdManager:
         """Get or create CIP ID service."""
         if self._cip_service is None:
-            self._cip_service = CipIdManager(timeout_minutes=1)
+            self._cip_service = CipIdManager(timeout_minutes=15)
         return self._cip_service
     
     def get_sensor_repository(self) -> InMemorySensorRepository:
